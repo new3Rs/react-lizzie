@@ -6,8 +6,9 @@ export class GoIntersectionState {
         this.stone = null;
         this.number = null;
         this.winrate = null;
-        this.visits = null;
+        this.playouts = null;
         this.backgroundColor = null;
+        this.borderWidth = null;
         this.borderColor = null;
     }
 }
@@ -27,17 +28,6 @@ function range(start, end) {
 }
 
 class GoBoard extends React.Component {
-    constructor(props) {
-        super(props);
-        const intersections = new Array(this.props.h * this.props.w);
-        for (let i = 0; i < intersections.length; i++) {
-            intersections[i] = new GoIntersectionState();
-        }
-        this.state = {
-            intersections: intersections,
-        };
-    }
-
     index(x, y) {
         return this.props.w * (y - 1) + x - 1;
     }
@@ -47,15 +37,17 @@ class GoBoard extends React.Component {
     }*/
 
     renderIntersection(x, y) {
-        const intersection = this.state.intersections[this.index(x, y)];
+        const intersection = this.props.intersections[this.index(x, y)];
         return (
             <GoIntersection
                 key={`${x}-${y}`}
                 onClick={() => this.props.onClickIntersection(x, y)}
+                onMouseEnter={() => this.props.onMouseEnterIntersection(x, y)}
+                onMouseLeave={() => this.props.onMouseLeaveIntersection(x, y)}
                 stone={intersection.stone}
                 number={intersection.number}
                 winrate={intersection.winrate}
-                visits={intersection.visits}
+                playouts={intersection.playouts}
                 backgroundColor={intersection.backgroundColor}
                 borderColor={intersection.borderColor}
             />
@@ -101,17 +93,18 @@ class GoIntersection  extends React.PureComponent {
         const intersectionStyle = {
             backgroundImage: url,
             backgroundColor: this.props.backgroundColor,
+            borderWidth: this.props.borderWidth,
             borderColor: this.props.borderColor,
         }
         const numberStyle = {
             color: this.props.stone === "B" ? "white" : "black",
         }
         return (
-            <div className="go-intersection" style={intersectionStyle} onClick={this.props.onClick}>
+            <div className="go-intersection" style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave}>
                 <div className="go-intersection-number" style={numberStyle}>{this.props.number}</div>
                 <div className="go-intersection-info">
                     <div>{this.props.winrate}</div>
-                    <div>{this.props.visits}</div>
+                    <div>{this.props.playouts}</div>
                 </div>
             </div>
         );
