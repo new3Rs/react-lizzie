@@ -1,9 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import GoBoard, { GoIntersectionState } from './GoBoard';
-import { Board } from './board';
-import { BoardConstants, IntersectionState } from './board_constants';
-import { AZjsEngine } from './azjs_engine_client';
+import GoPosition, { BLACK, WHITE, opponentOf } from './GoPosition';
+import Gtp from "./Gtp.js";
+
+function coord2xy(coord) {
+    const c = coord.charCodeAt(0);
+    const x = (c < "I".charCodeAt(0) ? c + 1 : c) - "A".charCodeAt(0);
+    return [x, parseInt(coord.slice(1))];
+}
+
+function xy2coord(x, y) {
+    const COORD = ["@", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"];
+    return COORD[x] + y;
+}
 
 /* accepts parameters
  * h  Object = {h:x, s:y, v:z}
@@ -52,6 +62,8 @@ function HSVtoRGB(h, s, v) {
         g = p;
         b = q;
         break;
+        default:
+        break;
     }
     return {
         r: Math.round(r * 255),
@@ -94,6 +106,8 @@ function RGBtoHSV(r, g, b) {
         h = (r - g) + d * 4;
         h /= 6 * d;
         break;
+        default:
+        break;
     }
 
     return {
@@ -111,22 +125,22 @@ function darker(r, g, b) {
         b = r.b;
     }
     return {
-        r: r * 0.7,
-        g: g * 0.7,
-        b: b * 0.7,
+        r: r * ratio,
+        g: g * ratio,
+        b: b * ratio,
     }
 }
 
 
 function board2intersections(board) {
-    const intersections = new Array(board.C.BVCNT);
+    const intersections = new Array(board.BOARD_SIZE2);
     for (let i = 0; i < intersections.length; i++) {
         const intersection  = new GoIntersectionState();
-        switch (board.state[board.C.rv2ev(i)]) {
-            case IntersectionState.BLACK:
+        switch (board.getState(i)) {
+            case BLACK:
             intersection.stone = "B";
             break;
-            case IntersectionState.WHITE:
+            case WHITE:
             intersection.stone = "W";
             break;
             default:
@@ -139,52 +153,59 @@ function board2intersections(board) {
 class GoBoardController {
     constructor() {
         this.size = 19;
-    }
-    
-    async start(size) {
-        this.size = size;
-        const byoyomi = 3;
-        this.model = new Board(new BoardConstants(this.size));
-        this.engine = new AZjsEngine(this.size);
+        this.byoyomi = 3;
+        this.gtp = new Gtp();
+        this.model = new GoPosition(this.size, 0);
+        this.candidates = [];
+        this.candidate = null;
         const intersections = board2intersections(this.model);
         this.render(intersections);
-        await this.engine.loadNN();
-        await this.engine.timeSettings(0, byoyomi);
-        while (true) {
-            const [move, winRate, num] = await this.engine.genmove("best");
-            switch (move) {
-                case "resign":
-                return;
-                case "pass":
-                this.model.play(this.model.C.PASS);
-                break;
-                default:
-                this.play(move[0], move[1]);
+        document.getElementById("start").addEventListener('click', event => {
+            this.lzAnalyze();
+        }, false);
+    }
+    
+    lzAnalyze() {
+        this.gtp.lzAnalyze(100, result => {
+            this.candidates = result;
+            let intersections;
+            if (this.candidate) {
+                intersections = this.variationIntersections();
+            } else {
+                intersections = board2intersections(this.model);
+                this.addCandidatesInfo(intersections, result);
             }
-        }
+            this.render(intersections);
+        });
     }
 
-    play(x, y) {
+    async play(x, y) {
         try {
-            this.model.play(this.model.C.xy2ev(x, y));
+            this.model.play(this.model.xyToPoint(x, y));
             this.render(board2intersections(this.model));
+            await this.gtp.command(`play ${this.model.turn === BLACK ? "black" : "white"} ${xy2coord(x, y)}`);
+            this.lzAnalyze();
         } catch (e) {
             console.log(e);
         }
     }
 
     onMouseEnterIntersection(x, y) {
-        console.log("onMouseEnterIntersection");
-        return;
-        const intersections = board2intersections(this.model);
-        let variation;
-        this.addVariationInfo(intersections, variation);
-        this.render(intersections);
+        const coord = xy2coord(x, y);
+        if (this.candidates.map(e => e[0]).includes(coord)) {
+            this.candidate = coord;
+            const intersections = this.variationIntersections();
+            this.render(intersections);
+        }
     }
 
     onMouseLeaveIntersection(x, y) {
-        console.log("onMouseLeaveIntersection");
-        return;
+        if (this.candidate) {
+            this.candidate = null;
+            const intersections = board2intersections(this.model);
+            this.addCandidatesInfo(intersections, this.candidates);
+            this.render(intersections);
+        }
     }
 
     render(intersections) {
@@ -201,8 +222,8 @@ class GoBoardController {
     }
 
     addCandidatesInfo(intersections, candidates) {
-        const maxPlayouts = candidates[0].playouts;
-        const maxWinrate = Math.max(...candidates.map(e => e.winate));
+        const maxPlayouts = Math.max(...candidates.map(e => e[1]));
+        const maxWinrate = Math.max(...candidates.map(e => e[2]));
         const saturation = 0.75;
         const brightness = 0.85;
         const maxAlpha = 240;
@@ -212,13 +233,9 @@ class GoBoardController {
         const greenHue = RGBtoHSV(0, 255, 0).h;
         const cyanHue = RGBtoHSV(0, 255, 255).h;
         for (const [i, candidate] of candidates.entries()) {
-            if (!candidate.primaryVariation[0]) {
-                continue;
-            }
-            const [x, y] = this.model.C.move2xy(candidate.primaryVariation[0]);
-            const intersection = intersections[(y - 1) * this.model.C.BSIZE + x - 1];
-            intersection.winrate = candidate.winrate;
-            intersection.playouts = candidates.playouts;
+            const intersection = intersections[this.model.xyToPoint.apply(this.model, coord2xy(candidate[0]))];
+            intersection.winrate = (candidate[2] / 100).toFixed(1);
+            intersection.playouts = candidate[1];
     
             const percentPlayouts = intersection.playouts / maxPlayouts;
             const logPlayouts = Math.log(percentPlayouts);
@@ -242,8 +259,31 @@ class GoBoardController {
         }
     }
     
-    addVariationInfo(intersections, variation) {
-    
+    variationIntersections() {
+        const info = this.candidates.find(e => e[0] === this.candidate);
+        if (!info) {
+            return null;
+        }
+        const position = GoPosition.copy(this.model);
+        for (const move of info[6]) {
+            position.play(position.xyToPoint.apply(position, coord2xy(move)));
+        }
+        const intersections = board2intersections(position);
+        let turn = this.model.turn;
+        const first = intersections[position.xyToPoint.apply(position, coord2xy(info[6][0]))];
+        first.winrate = (info[2] / 100).toFixed(1);
+        first.playouts = info[1];
+        first.textColor = turn === BLACK ? "white" : "black";
+        let number = 2;
+        turn = opponentOf(turn);
+        for (const move of info[6].slice(1)) {
+            const intersection = intersections[position.xyToPoint.apply(position, coord2xy(move))]
+            intersection.number = number;
+            intersection.textColor = turn === BLACK ? "white" : "black";
+            turn = opponentOf(turn);
+            number++;
+        }
+        return intersections;
     }
 }
 

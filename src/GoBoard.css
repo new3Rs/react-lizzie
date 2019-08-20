@@ -21,6 +21,10 @@
     flex: 1;
     padding: 0px;
     margin: 0px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 50%;
+    border-color: transparent;
     background-repeat: no-repeat;
     background-size: contain;
 }
@@ -40,15 +44,13 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 50%;
-    border-color: transparent;
 }
 
 .go-intersection-info > div {
+    height: 50%;
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 70%;
 }

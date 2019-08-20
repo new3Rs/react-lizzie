@@ -2,12 +2,12 @@
 /* exported GoPosition */
 // (C) 2017 ICHIKAWA, Yuji (New 3 Rs)
 
-const PASS = -1;
-const EMPTY = 0;
-const BLACK = 1;
-const WHITE = 2;
+export const PASS = -1;
+export const EMPTY = 0;
+export const BLACK = 1;
+export const WHITE = 2;
 
-function opponentOf(color) {
+export function opponentOf(color) {
     switch (color) {
         case BLACK:
             return WHITE;
@@ -48,253 +48,6 @@ class Marker {
     }
 }
 
-
-class GoInput {
-    constructor(position) {
-        this.position = position;
-        this.PLANE_SIZE = this.position.BOARD_SIZE2;
-
-        this.FEATURE_LIST = [
-            ['empty', 1], //  0
-            ['playerStone', 1], // 1
-            ['opponentStone', 1], // 2
-            ['zeros', 1], // 3
-            ['ones', 1], // 4
-            ['turnsSince', 8], // 5-12
-            ['liberties', 8], // 13-20
-            ['captureSizeSelfAtariSizeLibertiesAfterMove', 8 + 8 + 8], // 21-44
-            ['ladderCapture', 1], // 45
-            ['ladderEscape', 1], // 46
-            ['sensibleness', 1], // 47
-            ['falseEye', 1] // 48
-        ];
-        this.TOTAL_FEATURES = this.totalFeatures();
-        this.LINE_X_FEATURES = this.TOTAL_FEATURES * this.position.BOARD_SIZE;
-        this.array = new Float32Array(this.PLANE_SIZE * this.TOTAL_FEATURES);
-        this.turnArray = new Float32Array(this.PLANE_SIZE);
-        this.index = 0;
-        this.marker1 = new Marker(this.position.BOARD_SIZE);
-        this.processPlanes(); // 処理しやすいTHオーダーで処理。
-    }
-
-    getFeature(plane, x, y) {
-        return this.array[plane * this.PLANE_SIZE + this.position.xyToPoint(x, y)];
-    }
-
-    transpose() {
-        // TFオーダーに変換。
-        const array = new Float32Array(this.PLANE_SIZE * this.TOTAL_FEATURES);
-        for (let f = 0; f < this.TOTAL_FEATURES; f++) {
-            for (let y = 1; y <= this.position.BOARD_SIZE; y++) {
-                for (let x = 1; x <= this.position.BOARD_SIZE; x++) {
-                    const index = (x - 1) * this.LINE_X_FEATURES + (y - 1) * this.TOTAL_FEATURES + f;
-                    array[index] = this.getFeature(f, x, y);
-                }
-            }
-        }
-        return array;
-    }
-
-    getTurnPlane() {
-        this.turnArray.fill(this.position.turn === BLACK ? 1.0 : 0.0);
-        return this.turnArray;
-    }
-
-    totalFeatures() {
-        return this.FEATURE_LIST.reduce((sum, x) => sum + x[1], 0);
-    }
-
-    toString() {
-        let string = '';
-        for (let plane = 0; plane < this.totalFeatures(); plane++) {
-            string += this.planeToString(plane);
-        }
-        return string;
-    }
-
-    planeToString(plane) {
-        let string = `plane ${plane}\n`;
-        for (let y = 1; y <= this.position.BOARD_SIZE; y++) {
-            let line = '';
-            for (let x = 1; x <= this.position.BOARD_SIZE; x++) {
-                line += this.getFeature(plane, x, y);
-                line += ' ';
-            }
-            string += line + '\n';
-        }
-        string += '\n';
-        return string;
-    }
-
-    processPlanes() {
-        let plane = 0;
-        this.FEATURE_LIST.forEach(feature => {
-            const view = new Float32Array(this.array.buffer,
-                plane * this.PLANE_SIZE * Float32Array.BYTES_PER_ELEMENT,
-                feature[1] * this.PLANE_SIZE);
-            this[feature[0]](view);
-            plane += feature[1];
-        });
-    }
-
-    playerStone(view) {
-        view.set(this.position.state[this.position.turn]);
-    }
-
-    opponentStone(view) {
-        view.set(this.position.state[opponentOf(this.position.turn)]);
-    }
-
-    empty(view) {
-        for (let i = 0; i < view.length; i++) {
-            if (!(this.position.state[BLACK][i] || this.position.state[WHITE][i])) {
-                view[i] = 1.0;
-            }
-        }
-    }
-
-    ones(view) {
-        view.fill(1.0);
-    }
-
-    turnsSince(view) {
-        for (let i = 0; i < this.position.recent8.length; i++) {
-            const p = this.position.recent8[i];
-            if (p !== PASS) {
-                view[i * this.PLANE_SIZE + p] = 1.0;
-            }
-        }
-    }
-
-    liberties(view) {
-        this.marker1.clear();
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            if (this.marker1.isMarked(p)) {
-                continue;
-            }
-            const string = this.position.stringAt(p);
-            if (!string) {
-                continue;
-            }
-            const liberties = Math.min(string.liberties.length, 8) - 1;
-            for (const q of string.points) {
-                this.marker1.mark(q);
-                view[liberties * this.PLANE_SIZE + q] = 1.0;
-            }
-        }
-    }
-
-    captureSizeSelfAtariSizeLibertiesAfterMove(view) {
-        const offsetCaptureSize = 0;
-        const offsetSelfAtariSize = this.PLANE_SIZE * 8;
-        const offsetLibertiesAfterMove = offsetSelfAtariSize + this.PLANE_SIZE * 8;
-
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            const move = this.position.play(p);
-            if (!move) {
-                continue;
-            }
-
-            const captives = Math.min(move.captives.length, 8) - 1;
-            view[offsetCaptureSize + captives * this.PLANE_SIZE + p] = 1.0;
-
-            const string = this.position.stringAt(p);
-            if (string.liberties.length == 1) {
-                const size = Math.min(string.points.length, 8) - 1;
-                view[offsetSelfAtariSize + size * this.PLANE_SIZE + p] = 1.0;
-            }
-
-            const size = Math.min(string.liberties.length, 8) - 1;
-            view[offsetLibertiesAfterMove + size * this.PLANE_SIZE + p] = 1.0;
-
-            this.position.undoPlay(move);
-        }
-    }
-
-    ladderCapture(view) {
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            const move = this.position.play(p);
-            if (!move) {
-                continue;
-            }
-            for (const o of this.position.adjacenciesAt(p)) {
-                if (this.position.getState(o) !== this.position.turn) {
-                    continue;
-                }
-                const string = this.position.stringAt(o);
-                if (string.liberties.length === 1) {
-                    if (!this.position.canEscape(string)) {
-                        view[p] = 1.0;
-                    }
-                }
-            }
-            this.position.undoPlay(move);
-        }
-    }
-
-    ladderEscape(view) {
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            const move = this.position.play(p);
-            if (!move) {
-                continue;
-            }
-            if (move.string.liberties.length === 2) {
-                const m = this.position.play(move.string.liberties[0]);
-                let escape = true;
-                if (m) {
-                    const string = this.position.stringAt(p);
-                    escape = this.position.canEscape(string);
-                    this.position.undoPlay(m);
-                }
-                if (!escape) {
-                    view[p] = 1.0;
-                } else {
-                    const m = this.position.play(move.string.liberties[1]);
-                    if (m) {
-                        const string = this.position.stringAt(p);
-                        escape = this.position.canEscape(string);
-                        this.position.undoPlay(m);
-                    }
-                    if (!escape) {
-                        view[p] = 1.0;
-                    }
-                }
-            }
-            this.position.undoPlay(move);
-        }
-    }
-
-    sensibleness(view) {
-        this.noSensible = true;
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            if (this.position.isLegal(p) && !this.position.likeEye(p)) {
-                this.noSensible = false;
-                view[p] = 1.0;
-            }
-        }
-    }
-
-    zeros(view) {
-        // do nothing
-    }
-
-    legal(view) {
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            if (this.position.isLegal(p)) {
-                view[p] = 1.0;
-            }
-        }
-    }
-
-    falseEye(view) {
-        for (let p = 0; p < this.position.BOARD_SIZE2; p++) {
-            if (this.position.isFalseEye(p)) {
-                view[p] = 1.0;
-            }
-        }
-    }
-}
-
 const HANDICAPS = [
     [],
     [],
@@ -310,6 +63,15 @@ const HANDICAPS = [
 
 
 class GoPosition {
+    static copy(source) {
+        const result = new GoPosition(source.BOARD_SIZE, 0);
+        result.state[BLACK].set(source.state[BLACK]);
+        result.state[WHITE].set(source.state[WHITE]);
+        result.turn = source.turn;
+        result.ko = source.ko;
+        return result;
+    }
+
     static fromSgf(sgf) {
         const [root] = jssgf.fastParse(sgf);
         const p = new this(parseInt(root.SZ || '19'));
@@ -348,10 +110,6 @@ class GoPosition {
             this.turn = BLACK;
         }
         this.ko = null;
-    }
-
-    getFeatures() {
-        return new GoInput(this);
     }
 
     opponent() {
@@ -459,7 +217,7 @@ class GoPosition {
                 captives: []
             };
         }
-        if (point == this.ko || this.getState(point) !== EMPTY) { // 着手禁止
+        if (point === this.ko || this.getState(point) !== EMPTY) { // 着手禁止
             return null;
         }
         this.setState(point, this.turn);
@@ -547,13 +305,13 @@ class GoPosition {
         }
         for (const o of string.opponents) { // 相手の石を取って逃げる
             const os = this.stringAt(o);
-            if (os.liberties.length == 1) { // アタリの石
+            if (os.liberties.length === 1) { // アタリの石
                 const escape = this.play(os.liberties[0]);
                 if (!escape) { // 着手禁止
                     continue;
                 }
                 const ss = this.stringAt(string.points[0]); // stringの更新
-                if (ss.liberties.length == 2) { // 取ってもまだシチョウ
+                if (ss.liberties.length === 2) { // 取ってもまだシチョウ
                     for (const o of ss.liberties) {
                         const tryToCapture = this.play(o);
                         if (!tryToCapture) {
@@ -670,3 +428,5 @@ class GoString {
         this.opponents = [];
     }
 }
+
+export default GoPosition;

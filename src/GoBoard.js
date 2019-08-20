@@ -1,5 +1,6 @@
 import React from 'react';
 import './GoBoard.css';
+import { intersectionTypeAnnotation } from '@babel/types';
 
 export class GoIntersectionState {
     constructor() {
@@ -91,17 +92,15 @@ class GoIntersection  extends React.PureComponent {
             url = null;
         }
         const intersectionStyle = {
+            color: this.props.stone === "B" ? "white" : "black",
             backgroundImage: url,
             backgroundColor: this.props.backgroundColor,
             borderWidth: this.props.borderWidth,
             borderColor: this.props.borderColor,
         }
-        const numberStyle = {
-            color: this.props.stone === "B" ? "white" : "black",
-        }
         return (
             <div className="go-intersection" style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave}>
-                <div className="go-intersection-number" style={numberStyle}>{this.props.number}</div>
+                <div className="go-intersection-number">{this.props.number}</div>
                 <div className="go-intersection-info">
                     <div>{this.props.winrate}</div>
                     <div>{this.props.playouts}</div>
