@@ -175,7 +175,9 @@ class GoBoardController {
                 intersections = board2intersections(this.model);
                 this.addCandidatesInfo(intersections, result);
             }
-            this.render(intersections);
+            if (intersections) {
+                this.render(intersections);
+            }
         });
     }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import './GoBoard.css';
-import { intersectionTypeAnnotation } from '@babel/types';
 
 export class GoIntersectionState {
     constructor() {
@@ -75,10 +74,6 @@ class GoBoard extends React.Component {
 }
 
 class GoIntersection  extends React.PureComponent {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         let url;
         switch (this.props.stone) {

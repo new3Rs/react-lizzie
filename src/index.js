@@ -2,7 +2,9 @@ import './index.css';
 import GoBoardController from './GoBoardController';
 import * as serviceWorker from './serviceWorker';
 
-const controller = new GoBoardController();
+if (typeof SharedArrayBuffer !== "undefined") {
+    new GoBoardController();
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
