@@ -160,12 +160,10 @@ class GoBoardController {
         this.candidate = null;
         const intersections = board2intersections(this.model);
         this.render(intersections);
-        document.getElementById("start").addEventListener('click', event => {
-            this.lzAnalyze();
-        }, false);
     }
     
     lzAnalyze() {
+        console.log("lzAnalyze");
         this.gtp.lzAnalyze(100, result => {
             this.candidates = result;
             let intersections;

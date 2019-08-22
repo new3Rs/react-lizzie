@@ -3,7 +3,7 @@ import GoBoardController from './GoBoardController';
 import * as serviceWorker from './serviceWorker';
 
 if (typeof SharedArrayBuffer !== "undefined") {
-    new GoBoardController();
+    window.goBoardController = new GoBoardController();
 }
 
 // If you want your app to work offline and load faster, you can change
