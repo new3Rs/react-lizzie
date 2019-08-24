@@ -7,9 +7,10 @@ export class GoIntersectionState {
         this.number = null;
         this.winrate = null;
         this.playouts = null;
-        this.backgroundColor = null;
+        this.fillColor = null;
         this.borderWidth = null;
         this.borderColor = null;
+        this.backgroundColor = null;
     }
 }
 
@@ -48,8 +49,9 @@ class GoBoard extends React.Component {
                 number={intersection.number}
                 winrate={intersection.winrate}
                 playouts={intersection.playouts}
-                backgroundColor={intersection.backgroundColor}
+                fillColor={intersection.fillColor}
                 borderColor={intersection.borderColor}
+                backgroundColor={intersection.backgroundColor}
             />
         );
     }
@@ -90,13 +92,16 @@ class GoIntersection  extends React.PureComponent {
             color: this.props.stone === "B" ? "white" : "black",
             backgroundImage: url,
             backgroundColor: this.props.backgroundColor,
+        }
+        const infoStyle = {
+            backgroundColor: this.props.fillColor,
             borderWidth: this.props.borderWidth,
             borderColor: this.props.borderColor,
         }
         return (
             <div className="go-intersection" style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave}>
                 <div className="go-intersection-number">{this.props.number}</div>
-                <div className="go-intersection-info">
+                <div className="go-intersection-info" style={infoStyle}>
                     <div>{this.props.winrate}</div>
                     <div>{this.props.playouts}</div>
                 </div>

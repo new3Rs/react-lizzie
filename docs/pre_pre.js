@@ -8,7 +8,7 @@ function katagoStatusHandler(status) {
         command.focus();
         setTimeout(function() {
             if (window.goBoardController) {
-                window.goBoardController.lzAnalyze();
+                window.goBoardController.kataAnalyze();
             }
         }, 0);
         break;
@@ -52,30 +52,23 @@ class Input {
 class Output {
     constructor() {
         this.buffer = "";
-        this.crFlag = false;
     }
 
     callback(char) {
-        if (char === 0 || char === 0x0a) {
-            if (this.buffer.length < 1000) {
-                const output = document.getElementById("output")
-                output.value += this.buffer + "\n";
-                document.getElementById("log").value += this.buffer + "\n";
-                output.dispatchEvent(new CustomEvent("message"));
-            }
+        switch (char) {
+            case 0: // NULL
+            case 10: // "\n"
+            const output = document.getElementById("output")
+            output.value += this.buffer;
+            document.getElementById("log").value += this.buffer + "\n";
+            output.dispatchEvent(new CustomEvent("message"));
             this.buffer = "";
-            this.crFlag = false;
-            return;
+            break;
+            case 13: // "\r"
+            break;
+            default:
+            this.buffer += String.fromCharCode(char);
         }
-        if (char === 0x0d) {
-            this.crFlag = true;
-            return;
-        } 
-        if (this.crFlag) {
-            this.crFlag = false;
-            this.buffer = "";
-        }
-        this.buffer += String.fromCharCode(char);
     }
 }
 
