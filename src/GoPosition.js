@@ -2,6 +2,8 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
+ import jssgf from "jssgf";
+
 export const PASS = -1;
 export const EMPTY = 0;
 export const BLACK = 1;
@@ -17,15 +19,6 @@ export function opponentOf(color) {
             return EMPTY;
     }
 }
-
-function moveToXy(s) {
-    if (s === '') {
-        return PASS;
-    }
-    const offset = 'a'.charCodeAt(0) - 1;
-    return [s.charCodeAt(0) - offset, s.charCodeAt(1) - offset];
-}
-
 
 class Marker {
     constructor(boardSize) {
@@ -72,7 +65,6 @@ class GoPosition {
         return result;
     }
 
-    /*
     static fromSgf(sgf) {
         const [root] = jssgf.fastParse(sgf);
         const p = new this(parseInt(root.SZ || '19'));
@@ -87,11 +79,10 @@ class GoPosition {
             } else {
                 continue;
             }
-            p.play(p.xyToPoint.apply(p, moveToXy(move)));
+            p.play(p.xyToPoint.apply(p, p.moveToXy(move)));
         }
         return p
     }
-    */
 
     constructor(boardSize, handicap) {
         this.BOARD_SIZE = boardSize;
@@ -114,6 +105,15 @@ class GoPosition {
         this.ko = null;
     }
 
+    moveToXy(s) {
+        if (s === '') {
+            return PASS;
+        }
+        const offset = 'a'.charCodeAt(0) - 1;
+        return [s.charCodeAt(0) - offset, this.BOARD_SIZE - (s.charCodeAt(1) - offset) + 1];
+    }
+    
+    
     opponent() {
         return opponentOf(this.turn);
     }

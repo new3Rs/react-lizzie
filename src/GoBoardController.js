@@ -1,6 +1,7 @@
 /**
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
+/* global FS */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -8,6 +9,7 @@ import SituationBar from './SituationBar';
 import GoBoard, { GoIntersectionState } from './GoBoard';
 import GoPosition, { BLACK, WHITE, opponentOf } from './GoPosition';
 import Gtp from "./Gtp.js";
+import { fstat } from 'fs';
 
 function coord2xy(coord) {
     const c = coord.charCodeAt(0);
@@ -166,6 +168,14 @@ class GoBoardController {
         this.info = {
             percent: 50,
         };
+        document.getElementById("sgf").addEventListener("paste", async e => {
+            const sgf = (e.clipboardData || window.clipboardData).getData('text');
+            const file = "tmp.sgf";
+            FS.writeFile(file, sgf);
+            await this.gtp.command(`loadsgf ${file}`);
+            this.model = GoPosition.fromSgf(sgf);
+            this.kataAnalyze();
+        }, false);
         const intersections = board2intersections(this.model);
         this.render(intersections);
     }
@@ -341,10 +351,11 @@ class GoBoardController {
 
     addOwnership(intersections, ownership) {
         if (this.model.turn === BLACK) {
-            for (const [i, value] of ownership.entries()) {
+            for (const [i, v] of ownership.entries()) {
                 if (i >= this.model.BOARD_SIZE2) {
                     break;
                 }
+                const value = v * 0.5;
                 const [x, y] = this.model.pointToXy(i);
                 const intersection = intersections[this.model.BOARD_SIZE * (this.model.BOARD_SIZE - y) + (x - 1)];
                 intersection.backgroundColor = value > 0.0 ? `rgba(0,0,0,${value})` : `rgba(255,255,255,${-value})`;
