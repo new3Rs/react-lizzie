@@ -1,4 +1,8 @@
-.go-board {
+/**
+ * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
+ */
+
+ .go-board {
     background-image: url(https://storage.googleapis.com/mimiaka-storage/mimiaka/public/images/goban.jpg);
     background-size: contain;
 }

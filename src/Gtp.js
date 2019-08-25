@@ -1,3 +1,7 @@
+/**
+ * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
+ */
+
 class Gtp {
     constructor() {
         this.inputDom = document.getElementById("input");

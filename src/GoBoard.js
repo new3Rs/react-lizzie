@@ -1,4 +1,8 @@
-import React from 'react';
+/**
+ * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
+ */
+
+ import React from 'react';
 import './GoBoard.css';
 
 export class GoIntersectionState {

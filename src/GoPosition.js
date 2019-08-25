@@ -1,6 +1,6 @@
-/* global jssgf */
-/* exported GoPosition */
-// (C) 2017 ICHIKAWA, Yuji (New 3 Rs)
+/**
+ * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
+ */
 
 export const PASS = -1;
 export const EMPTY = 0;

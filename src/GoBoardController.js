@@ -1,4 +1,8 @@
-import React from 'react';
+/**
+ * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
+ */
+
+ import React from 'react';
 import ReactDOM from 'react-dom';
 import GoBoard, { GoIntersectionState } from './GoBoard';
 import GoPosition, { BLACK, WHITE, opponentOf } from './GoPosition';
