@@ -72,6 +72,7 @@ class GoPosition {
         return result;
     }
 
+    /*
     static fromSgf(sgf) {
         const [root] = jssgf.fastParse(sgf);
         const p = new this(parseInt(root.SZ || '19'));
@@ -90,6 +91,7 @@ class GoPosition {
         }
         return p
     }
+    */
 
     constructor(boardSize, handicap) {
         this.BOARD_SIZE = boardSize;

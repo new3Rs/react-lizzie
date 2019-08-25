@@ -2,8 +2,9 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
- import React from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
+import SituationBar from './SituationBar';
 import GoBoard, { GoIntersectionState } from './GoBoard';
 import GoPosition, { BLACK, WHITE, opponentOf } from './GoPosition';
 import Gtp from "./Gtp.js";
@@ -15,7 +16,7 @@ function coord2xy(coord) {
 }
 
 function xy2coord(x, y) {
-    const COORD = ["@", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"];
+    const COORD = ["@", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"];
     return COORD[x] + y;
 }
 
@@ -162,6 +163,9 @@ class GoBoardController {
         this.model = new GoPosition(this.size, 0);
         this.candidates = [];
         this.candidate = null;
+        this.info = {
+            percent: 50,
+        };
         const intersections = board2intersections(this.model);
         this.render(intersections);
     }
@@ -176,6 +180,10 @@ class GoBoardController {
                 intersections = board2intersections(this.model);
                 this.addCandidatesInfo(intersections, result);
             }
+            const blackWinrate = (this.model.turn === BLACK ? result.winrate : 1 - result.winrate) * 100;
+            this.info.percent = blackWinrate;
+            this.info.black = `${blackWinrate.toFixed(1)}%`;
+            this.info.white = `${(100 - blackWinrate).toFixed(1)}%`;
             if (intersections) {
                 this.render(intersections);
             }
@@ -195,6 +203,17 @@ class GoBoardController {
                 intersections = board2intersections(this.model);
                 this.addCandidatesInfo(intersections, result.info);
                 this.addOwnership(intersections, result.ownership);
+            }
+            const first = result.info[0];
+            const blackWinrate = (this.model.turn === BLACK ? first.winrate : 1.0 - first.winrate) * 100;
+            const blackScore = (this.model.turn === BLACK ? first.scoreMean : 1.0 - first.scoreMean).toFixed(1);
+            this.info.percent = blackWinrate;
+            if (blackWinrate >= 50) {
+                this.info.black = `${blackWinrate.toFixed(1)}%(${blackScore})`;
+                this.info.white = `${(100 - blackWinrate).toFixed(1)}%`;
+            } else {
+                this.info.black = `${blackWinrate.toFixed(1)}%`;
+                this.info.white = `${(100 - blackWinrate).toFixed(1)}%(${-blackScore})`;
             }
             if (intersections) {
                 this.render(intersections);
@@ -232,16 +251,27 @@ class GoBoardController {
     }
 
     render(intersections) {
-        ReactDOM.render(<GoBoard
-            width="500px"
-            height="500px"
-            w={this.size}
-            h={this.size}
-            intersections={intersections}
-            onClickIntersection={(x, y) => this.play(x, y)}
-            onMouseEnterIntersection={(x, y) => this.onMouseEnterIntersection(x, y)}
-            onMouseLeaveIntersection={(x, y) => this.onMouseLeaveIntersection(x, y)}
-        />, document.getElementById('root'));
+        const size = "500px";
+        ReactDOM.render(
+        <div>
+            <SituationBar
+                width={size}
+                blackPercent={this.info.percent}
+                blackInfo={this.info.black}
+                whiteInfo={this.info.white}
+            />
+            <GoBoard
+                width={size}
+                height={size}
+                w={this.size}
+                h={this.size}
+                intersections={intersections}
+                onClickIntersection={(x, y) => this.play(x, y)}
+                onMouseEnterIntersection={(x, y) => this.onMouseEnterIntersection(x, y)}
+                onMouseLeaveIntersection={(x, y) => this.onMouseLeaveIntersection(x, y)}
+            />
+        </div>
+        , document.getElementById('root'));
     }
 
     addCandidatesInfo(intersections, candidates) {

@@ -79,7 +79,7 @@ class GoBoard extends React.Component {
     }
 }
 
-class GoIntersection  extends React.PureComponent {
+class GoIntersection extends React.PureComponent {
     render() {
         let url;
         switch (this.props.stone) {
