@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "50314a2ec81b50a9478e87e6c4002b75",
+    "revision": "4619ae9e4dba44022741245523b6a3e3",
     "url": "/react-lizzie/index.html"
   },
   {
