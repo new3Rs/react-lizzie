@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b67a9642c2282740185301481736947b",
+    "revision": "979f531a50a9ad7532e24d88441532b2",
     "url": "/react-lizzie/index.html"
   },
   {
-    "revision": "76f97bcc52fcf2521e54",
+    "revision": "61f6f02b117f3c7636a6",
     "url": "/react-lizzie/static/css/main.73e8dd26.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-lizzie/static/js/2.e423132a.chunk.js"
   },
   {
-    "revision": "76f97bcc52fcf2521e54",
-    "url": "/react-lizzie/static/js/main.d41bc659.chunk.js"
+    "revision": "61f6f02b117f3c7636a6",
+    "url": "/react-lizzie/static/js/main.39c0a277.chunk.js"
   },
   {
     "revision": "17b28262c569f690dee7",

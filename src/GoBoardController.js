@@ -164,6 +164,7 @@ class GoBoardController {
         this.gtp = new Gtp();
         this.model = new GoPosition(this.size, 0);
         this.candidates = [];
+        this.ownership = null;
         this.candidate = null;
         this.info = {
             percent: 50,
@@ -206,13 +207,13 @@ class GoBoardController {
                 return;
             }
             this.candidates = result.info;
+            this.ownership = result.ownership;
             let intersections;
             if (this.candidate) {
                 intersections = this.variationIntersections();
             } else {
                 intersections = board2intersections(this.model);
                 this.addCandidatesInfo(intersections, result.info);
-                this.addOwnership(intersections, result.ownership);
             }
             const first = result.info[0];
             const blackWinrate = (this.model.turn === BLACK ? first.winrate : 1.0 - first.winrate) * 100;
@@ -345,6 +346,9 @@ class GoBoardController {
             intersection.textColor = turn === BLACK ? "white" : "black";
             turn = opponentOf(turn);
             number++;
+        }
+        if (info.order === 0 && this.ownership) {
+            this.addOwnership(intersections, this.ownership);
         }
         return intersections;
     }
