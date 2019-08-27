@@ -2,8 +2,25 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
- import React from 'react';
+import React from 'react';
 import './GoBoard.css';
+import { sprintf } from "sprintf-js";
+
+function shortStringOfInteger(n) {
+    if (n < 1000) {
+        return sprintf('%d', n);
+    } else if (n < 10000) {
+        return sprintf('%.1fk', n / 1000);
+    } else if (n < 1000000) {
+        return sprintf('%.0fk', n / 1000);
+    } else if (n < 10000000) {
+        return sprintf('%.1fM', n / 1000000);
+    } else if (n < 1000000000) {
+        return sprintf('%.0fM', n / 1000000);
+    } else {
+        return sprintf('%.0G', n / 1000000000);
+    }
+}
 
 export class GoIntersectionState {
     constructor() {
@@ -107,7 +124,7 @@ class GoIntersection extends React.PureComponent {
                 <div className="go-intersection-number">{this.props.number}</div>
                 <div className="go-intersection-info" style={infoStyle}>
                     <div>{this.props.winrate}</div>
-                    <div>{this.props.playouts}</div>
+                    <div>{typeof this.props.playouts === "number" ? shortStringOfInteger(this.props.playouts) : this.props.playouts}</div>
                 </div>
             </div>
         );
