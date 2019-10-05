@@ -218,13 +218,14 @@ class GoBoardController {
             const first = result.info[0];
             const blackWinrate = (this.model.turn === BLACK ? first.winrate : 1.0 - first.winrate) * 100;
             const blackScore = (this.model.turn === BLACK ? first.scoreMean : 1.0 - first.scoreMean).toFixed(1);
+            const scoreStdev = first.scoreStdev.toFixed(1)
             this.info.percent = blackWinrate;
             if (blackWinrate >= 50) {
-                this.info.black = `${blackWinrate.toFixed(1)}%(${blackScore})`;
+                this.info.black = `${blackWinrate.toFixed(1)}%(${blackScore}±${scoreStdev})`;
                 this.info.white = `${(100 - blackWinrate).toFixed(1)}%`;
             } else {
                 this.info.black = `${blackWinrate.toFixed(1)}%`;
-                this.info.white = `${(100 - blackWinrate).toFixed(1)}%(${-blackScore})`;
+                this.info.white = `${(100 - blackWinrate).toFixed(1)}%(${-blackScore}±${scoreStdev})`;
             }
             if (intersections) {
                 this.render(intersections);

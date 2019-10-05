@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/react-lizzie/precache-manifest.403521595f789d3a049f8e630d6f22e9.js"
+  "/react-lizzie/precache-manifest.2b054f4dc3edb758d42234f7ac48c658.js"
 );
 
 self.addEventListener('message', (event) => {

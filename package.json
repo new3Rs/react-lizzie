@@ -5,8 +5,8 @@
   "homepage": "http://new3rs.github.io/react-lizzie",
   "dependencies": {
     "jssgf": "^0.3.8",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-scripts": "3.0.1",
     "sprintf-js": "^1.1.2",
     "worker-rmi": "^1.0.8"
