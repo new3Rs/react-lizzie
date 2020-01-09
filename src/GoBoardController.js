@@ -1,7 +1,6 @@
 /**
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
-/* global FS */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -158,7 +157,8 @@ function board2intersections(board) {
 }
 
 class GoBoardController {
-    constructor() {
+    constructor(container) {
+        this.container = container;
         this.size = 19;
         this.byoyomi = 3;
         this.gtp = new Gtp();
@@ -169,14 +169,6 @@ class GoBoardController {
         this.info = {
             percent: 50,
         };
-        document.getElementById("sgf").addEventListener("paste", async e => {
-            const sgf = (e.clipboardData || window.clipboardData).getData('text');
-            const file = "tmp.sgf";
-            FS.writeFile(file, sgf);
-            await this.gtp.command(`loadsgf ${file}`);
-            this.model = GoPosition.fromSgf(sgf);
-            this.kataAnalyze();
-        }, false);
         const intersections = board2intersections(this.model);
         this.render(intersections);
     }
@@ -283,7 +275,7 @@ class GoBoardController {
                 onMouseLeaveIntersection={(x, y) => this.onMouseLeaveIntersection(x, y)}
             />
         </div>
-        , document.getElementById('root'));
+        , this.container);
     }
 
     addCandidatesInfo(intersections, candidates) {
