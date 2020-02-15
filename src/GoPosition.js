@@ -20,6 +20,17 @@ export function opponentOf(color) {
     }
 }
 
+export function coord2xy(coord) {
+    const c = coord.charCodeAt(0);
+    const x = (c < "I".charCodeAt(0) ? c + 1 : c) - "A".charCodeAt(0);
+    return [x, parseInt(coord.slice(1))];
+}
+
+export function xy2coord(x, y) {
+    const COORD = ["@", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"];
+    return COORD[x] + y;
+}
+
 class Marker {
     constructor(boardSize) {
         this.BOARD_SIZE = boardSize;

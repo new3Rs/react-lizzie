@@ -1,6 +1,6 @@
 {
   "name": "react-lizzie",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "homepage": "http://new3rs.github.io/react-lizzie",
   "dependencies": {
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && rm -r docs && mv build docs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

@@ -7,8 +7,8 @@ function katagoStatusHandler(status) {
         command.setAttribute("placeholder", "Input a GTP command");
         command.focus();
         setTimeout(function() {
-            if (window.goBoardController) {
-                window.goBoardController.kataAnalyze();
+            if (window.goAI) {
+                window.goAI.kataAnalyze();
             }
         }, 0);
         break;
