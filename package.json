@@ -1,8 +1,8 @@
 {
   "name": "react-lizzie",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
-  "homepage": "http://new3rs.github.io/react-lizzie",
+  "homepage": "https://new3rs.github.io/react-lizzie",
   "dependencies": {
     "jssgf": "^0.3.8",
     "react": "^16.12.0",
