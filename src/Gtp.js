@@ -104,7 +104,7 @@ class Gtp {
                     info[item] = parseInt(items.shift());
                     break;
                     case "pv":
-                    info[item] = items;
+                    info[item] = [...items];
                     items.splice(0);
                     break;
                     default:
