@@ -4,7 +4,14 @@
 
 import React from 'react';
 
-function SituationBar(props) {
+interface Props {
+    width: string;
+    blackPercent: number;
+    blackInfo: string;
+    whiteInfo: string;
+}
+
+function SituationBar(props: Props) {
     const style = {
         width: props.width,
         height: "15px",
@@ -12,21 +19,21 @@ function SituationBar(props) {
         borderWidth: "1px",
         borderColor: "black",
         marginBottom: "5px",
-    }
+    } as const;
     const blackStyle = {
-        float: "left",
+        float: "left" as const,
         textAlign: "center",
         color: "white",
         width: `${props.blackPercent}%`,
         height: "100%",
         backgroundColor: "black",
-    }
+    } as const;
     const whiteStyle = {
         float: "left",
         textAlign: "center",
         width: `${100 - props.blackPercent}%`,
         height: "100%",
-    }
+    } as const;
     return (
         <div style={style}>
         <div style={blackStyle}>{props.blackInfo}</div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import GoAI from './GoAI.jsx';
+import GoAI from './GoAI';
 
 const App = () => (
   <div>

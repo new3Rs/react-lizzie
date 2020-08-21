@@ -2,37 +2,37 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
- import jssgf from "jssgf";
+import jssgf from "jssgf";
+
+type GoColor = 1 | 2;
+type GoIntersectionState = 0 | 1 | 2;
 
 export const PASS = -1;
 export const EMPTY = 0;
 export const BLACK = 1;
 export const WHITE = 2;
 
-export function opponentOf(color) {
-    switch (color) {
-        case BLACK:
-            return WHITE;
-        case WHITE:
-            return BLACK;
-        default:
-            return EMPTY;
-    }
+export function opponentOf(color: GoColor): GoColor {
+    return color === BLACK ? WHITE : BLACK;
 }
 
-export function coord2xy(coord) {
+export function coord2xy(coord: string): [number, number] {
     const c = coord.charCodeAt(0);
     const x = (c < "I".charCodeAt(0) ? c + 1 : c) - "A".charCodeAt(0);
     return [x, parseInt(coord.slice(1))];
 }
 
-export function xy2coord(x, y) {
+export function xy2coord(x: number, y: number): string {
     const COORD = ["@", "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"];
     return COORD[x] + y;
 }
 
 class Marker {
-    constructor(boardSize) {
+    BOARD_SIZE: number;
+    BOARD_SIZE2: number;
+    value: number;
+    marks: Int32Array;
+    constructor(boardSize: number) {
         this.BOARD_SIZE = boardSize;
         this.BOARD_SIZE2 = boardSize * boardSize;
         this.value = 0;
@@ -43,11 +43,11 @@ class Marker {
         this.value += 1;
     }
 
-    isMarked(point) {
+    isMarked(point: number): boolean {
         return this.marks[point] === this.value;
     }
 
-    mark(point) {
+    mark(point: number) {
         this.marks[point] = this.value;
     }
 }
@@ -66,8 +66,25 @@ const HANDICAPS = [
 ];
 
 
+interface GoMove {
+    turn: 1 | 2;
+    point: number;
+    ko: number | null;
+    captives: number[];
+    string: GoString;
+}
+
 class GoPosition {
-    static copy(source) {
+    BOARD_SIZE: number;
+    BOARD_SIZE2: number;
+    turn: 1 | 2;
+    state: { 1: Float32Array, 2: Float32Array };
+    ko: number | null;
+    recent8: number[];
+    marker1: Marker;
+    marker2: Marker;
+
+    static copy(source: GoPosition) {
         const result = new GoPosition(source.BOARD_SIZE, 0);
         result.state[BLACK].set(source.state[BLACK]);
         result.state[WHITE].set(source.state[WHITE]);
@@ -76,7 +93,7 @@ class GoPosition {
         return result;
     }
 
-    static fromSgf(sgf) {
+    static fromSgf(sgf: string) {
         const [root] = jssgf.fastParse(sgf);
         const p = new this(parseInt(root.SZ || '19'));
         let node = root;
@@ -90,12 +107,17 @@ class GoPosition {
             } else {
                 continue;
             }
-            p.play(p.xyToPoint.apply(p, p.moveToXy(move)));
+            const xy = p.moveToXy(move);
+            if (xy === PASS) {
+                p.play(PASS);
+            } else {
+                p.play(p.xyToPoint.apply(p, xy));
+            }
         }
         return p
     }
 
-    constructor(boardSize, handicap) {
+    constructor(boardSize: number, handicap: number = 0) {
         this.BOARD_SIZE = boardSize;
         this.BOARD_SIZE2 = boardSize * boardSize;
         this.state = {
@@ -116,7 +138,7 @@ class GoPosition {
         this.ko = null;
     }
 
-    moveToXy(s) {
+    moveToXy(s: string): [number, number] | -1 {
         if (s === '') {
             return PASS;
         }
@@ -133,7 +155,7 @@ class GoPosition {
         this.turn = opponentOf(this.turn);
     }
 
-    getState(point) {
+    getState(point: number) {
         if (this.state[BLACK][point] === 1.0) {
             return BLACK;
         }
@@ -143,7 +165,7 @@ class GoPosition {
         return EMPTY;
     }
 
-    setState(point, color) {
+    setState(point: number, color: GoIntersectionState) {
         if (color === EMPTY) {
             this.state[BLACK][point] = 0.0;
             this.state[WHITE][point] = 0.0;
@@ -152,19 +174,19 @@ class GoPosition {
         }
     }
 
-    removeString(string) {
+    removeString(string: GoString) {
         for (const e of string.points) {
             this.setState(e, EMPTY);
         }
     }
 
-    captureBy(point) {
+    captureBy(point: number): number[] {
         const opponent = this.opponent();
-        const captives = [];
+        const captives: number[] = [];
         for (const pt of this.adjacenciesAt(point)) {
             if (this.getState(pt) === opponent) {
                 const string = this.stringAt(pt);
-                if (string.liberties.length === 0) {
+                if (string != null && string.liberties.length === 0) {
                     this.removeString(string);
                     captives.push.apply(captives, string.points);
                 }
@@ -173,10 +195,10 @@ class GoPosition {
         return captives;
     }
 
-    stringAt(point) {
+    stringAt(point: number): GoString | undefined {
         const color = this.getState(point);
         if (color === EMPTY) {
-            return null;
+            return undefined;
         }
         const opponent = opponentOf(color);
         const string = new GoString();
@@ -212,14 +234,14 @@ class GoPosition {
         return string;
     }
 
-    putRecent8(point) {
+    putRecent8(point: number) {
         this.recent8.unshift(point);
         if (this.recent8.length > 8) {
             this.recent8.pop();
         }
     }
 
-    play(point) {
+    play(point: number): GoMove | null {
         if (point === PASS) {
             this.putRecent8(point);
             this.switchTurn();
@@ -227,7 +249,8 @@ class GoPosition {
                 turn: this.turn,
                 point,
                 ko: this.ko,
-                captives: []
+                captives: [],
+                string: new GoString()
             };
         }
         if (point === this.ko || this.getState(point) !== EMPTY) { // 着手禁止
@@ -236,7 +259,7 @@ class GoPosition {
         this.setState(point, this.turn);
 
         const captives = this.captureBy(point);
-        const string = this.stringAt(point);
+        const string = this.stringAt(point)!;
         const liberties = string.liberties.length;
         if (liberties === 0) { // 着手禁止
             this.setState(point, EMPTY); // restore
@@ -254,7 +277,7 @@ class GoPosition {
         return { turn, point, ko, captives, string };
     }
 
-    undoPlay(move) {
+    undoPlay(move: GoMove) {
         this.ko = move.ko;
         this.switchTurn();
         if (move.point === PASS) {
@@ -267,7 +290,7 @@ class GoPosition {
         }
     }
 
-    isLegal(point) {
+    isLegal(point: number): boolean {
         const move = this.play(point);
         if (move) {
             this.undoPlay(move);
@@ -276,17 +299,17 @@ class GoPosition {
         return false;
     }
 
-    xyToPoint(x, y) {
+    xyToPoint(x: number, y: number): number {
         return (x - 1) + (y - 1) * this.BOARD_SIZE;
     }
 
-    pointToXy(point) {
+    pointToXy(point: number): [number, number] {
         const y = Math.floor(point / this.BOARD_SIZE);
         const x = point - y * this.BOARD_SIZE;
         return [x + 1, y + 1];
     }
 
-    adjacenciesAt(point) {
+    adjacenciesAt(point: number): number[] {
         const xy = this.pointToXy(point);
         const result = [];
         for (const e of [[0, -1], [-1, 0], [1, 0], [0, 1]]) {
@@ -299,7 +322,7 @@ class GoPosition {
         return result;
     }
 
-    diagonalsAt(point) {
+    diagonalsAt(point: number) {
         const xy = this.pointToXy(point);
         const result = [];
         for (const e of [[-1, -1], [-1, 1], [1, -1], [1, -1]]) {
@@ -312,25 +335,25 @@ class GoPosition {
         return result;
     }
 
-    canEscape(string) {
+    canEscape(string: GoString): boolean {
         if (string.liberties.length > 1) { // アタリじゃない
             return true;
         }
         for (const o of string.opponents) { // 相手の石を取って逃げる
-            const os = this.stringAt(o);
+            const os = this.stringAt(o)!;
             if (os.liberties.length === 1) { // アタリの石
                 const escape = this.play(os.liberties[0]);
                 if (!escape) { // 着手禁止
                     continue;
                 }
-                const ss = this.stringAt(string.points[0]); // stringの更新
+                const ss = this.stringAt(string.points[0])!; // stringの更新
                 if (ss.liberties.length === 2) { // 取ってもまだシチョウ
                     for (const o of ss.liberties) {
                         const tryToCapture = this.play(o);
                         if (!tryToCapture) {
                             continue;
                         }
-                        const result = this.canEscape(this.stringAt(ss.points[0]));
+                        const result = this.canEscape(this.stringAt(ss.points[0])!);
                         this.undoPlay(tryToCapture);
                         if (!result) {
                             this.undoPlay(escape);
@@ -346,16 +369,16 @@ class GoPosition {
             }
         }
         const escape = this.play(string.liberties[0]);
-        if (!escape) {
+        if (escape == null) {
             return false;
         }
-        if (escape.string.liberties.length === 2) {
+        if (escape.string != null && escape.string.liberties.length === 2) {
             for (const o of escape.string.liberties) {
                 const tryToCapture = this.play(o);
                 if (!tryToCapture) {
                     continue;
                 }
-                const ss = this.stringAt(string.points[0]);
+                const ss = this.stringAt(string.points[0])!;
                 const result = this.canEscape(ss);
                 this.undoPlay(tryToCapture);
                 if (!result) {
@@ -371,7 +394,7 @@ class GoPosition {
         }
     }
 
-    likeEye(point) {
+    likeEye(point: number): boolean {
         if (this.getState(point) !== EMPTY) {
             return false;
         }
@@ -379,10 +402,10 @@ class GoPosition {
         if (!adjacencies.every(p => this.getState(p) === this.turn)) {
             return false;
         }
-        return adjacencies.every(p => this.stringAt(p).liberties.length > 1);
+        return adjacencies.every(p => this.stringAt(p)!.liberties.length > 1);
     }
 
-    isEyeOfTurn(point, stack=[]) {
+    isEyeOfTurn(point: number, stack: number[] = []): boolean {
         if (!this.likeEye(point)) {
             return false;
         }
@@ -407,11 +430,11 @@ class GoPosition {
         return true;
     }
 
-    isFalseEye(point) {
+    isFalseEye(point: number): boolean {
         return this.likeEye(point) && !this.isEyeOfTurn(point);
     }
 
-    toString() {
+    toString(): string {
         let string ='';
         for (let y = 1; y <= this.BOARD_SIZE; y++) {
             for (let x = 1; x <= this.BOARD_SIZE; x++) {
@@ -435,6 +458,9 @@ class GoPosition {
 }
 
 class GoString {
+    points: number[];
+    liberties: number[];
+    opponents: number[];
     constructor() {
         this.points = [];
         this.liberties = [];

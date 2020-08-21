@@ -31,5 +31,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^3.9.7",
+    "@types/react": "^16.9.46",
+    "@types/sprintf-js": "^1.1.2"
   }
 }

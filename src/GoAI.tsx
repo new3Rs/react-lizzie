@@ -7,10 +7,35 @@ import React from "react";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
 import GoPosition, { BLACK, xy2coord } from "./GoPosition";
-import Gtp from "./Gtp";
+import Gtp, { KataInfo } from "./Gtp";
 
-class GoAI extends React.Component {
-    constructor(props) {
+declare var FS: any;
+
+declare global {
+    interface Window {
+        clipboardData?: any;
+        goAI: GoAI;
+    }
+}
+
+interface Props {
+
+}
+
+interface State {
+    percent: number;
+    black: string;
+    white: string;
+    model: GoPosition;
+    candidates: KataInfo[];
+    ownership: number[];
+}
+
+class GoAI extends React.Component<Props, State> {
+    size: number;
+    byoyomi: number;
+    gtp: Gtp;
+    constructor(props: Props) {
         super(props)
         this.size = 19;
         this.byoyomi = 3;
@@ -23,7 +48,7 @@ class GoAI extends React.Component {
             ownership: []
         }
         this.gtp = new Gtp();
-        document.getElementById("sgf").addEventListener("paste", async (e) => {
+        document.getElementById("sgf")!.addEventListener("paste", async (e) => {
             const sgf = (e.clipboardData || window.clipboardData).getData('text');
             const file = "tmp.sgf";
             FS.writeFile(file, sgf);
@@ -60,7 +85,8 @@ class GoAI extends React.Component {
 
     lzAnalyze() {
         this.gtp.lzAnalyze(100, result => {
-            const blackWinrate = (this.state.model.turn === BLACK ? result.winrate : 1 - result.winrate) * 100;
+            const first = result[0];
+            const blackWinrate = (this.state.model.turn === BLACK ? first.winrate : 1 - first.winrate) * 100;
             this.setState({
                 candidates: result,
                 percent: blackWinrate,
@@ -98,7 +124,7 @@ class GoAI extends React.Component {
         });
     }
 
-    async play(x, y) {
+    async play(x: number, y: number) {
         try {
             const turn = this.state.model.turn;
             this.setState((state, props) => {

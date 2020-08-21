@@ -5,7 +5,7 @@
 import * as serviceWorker from './serviceWorker';
 import React from 'react';
 import { render } from 'react-dom';
-import App from './App.jsx';
+import App from './App';
 import './index.css';
 
 if (typeof SharedArrayBuffer !== "undefined") {

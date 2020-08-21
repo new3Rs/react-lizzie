@@ -2,23 +2,47 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
-import React from 'react';
-import './GoBoard.css';
+import React, { CSSProperties } from "react";
+import "./GoBoard.css";
 import { sprintf } from "sprintf-js";
-import GoPosition, { BLACK, WHITE, opponentOf, coord2xy, xy2coord } from './GoPosition';
+import { KataInfo } from "./Gtp";
+import GoPosition, { BLACK, WHITE, opponentOf, coord2xy, xy2coord } from "./GoPosition";
+
+type RGB = {
+    r: number,
+    g: number,
+    b: number,
+}
+
+class GoIntersectionState {
+    stone: string | undefined;
+    number: number | undefined;
+    winrate: string | undefined;
+    playouts: number | undefined;
+    fillColor: string | undefined;
+    borderWidth: string | undefined;
+    borderColor: string | undefined;
+    backgroundColor: string | undefined;
+
+    constructor() {
+        this.stone = undefined;
+        this.number = undefined;
+        this.winrate = undefined;
+        this.playouts = undefined;
+        this.fillColor = undefined;
+        this.borderWidth = undefined;
+        this.borderColor = undefined;
+        this.backgroundColor = undefined;
+    }
+}
 
 /* accepts parameters
  * h  Object = {h:x, s:y, v:z}
  * OR 
  * h, s, v
 */
-function HSVtoRGB(h, s, v) {
+function HSVtoRGB(h: number, s: number, v: number): RGB {
     let r, g, b, i, f, p, q, t;
-    if (arguments.length === 1) {
-        s = h.s;
-        v = h.v;
-        h = h.h;
-    }
     i = Math.floor(h * 6);
     f = h * 6 - i;
     p = v * (1 - s);
@@ -49,12 +73,10 @@ function HSVtoRGB(h, s, v) {
         g = p;
         b = v;
         break;
-        case 5:
+        default: // 5
         r = v;
         g = p;
         b = q;
-        break;
-        default:
         break;
     }
     return {
@@ -69,12 +91,7 @@ function HSVtoRGB(h, s, v) {
  * OR 
  * r, g, b
 */
-function RGBtoHSV(r, g, b) {
-    if (arguments.length === 1) {
-        g = r.g;
-        b = r.b;
-        r = r.r;
-    }
+function RGBtoHSV(r: number, g: number, b: number): { h: number, s: number, v: number } {
     let max = Math.max(r, g, b);
     let min = Math.min(r, g, b);
     let d = max - min;
@@ -94,11 +111,9 @@ function RGBtoHSV(r, g, b) {
         h = (b - r) + d * 2;
         h /= 6 * d;
         break;
-        case b:
+        default: // case b:
         h = (r - g) + d * 4;
         h /= 6 * d;
-        break;
-        default:
         break;
     }
 
@@ -109,13 +124,11 @@ function RGBtoHSV(r, g, b) {
     };
 }
 
-function darker(r, g, b) {
+function darker(rgb: RGB): RGB {
     const ratio = 0.7;
-    if (arguments.length === 1) {
-        r = r.r;
-        g = r.g;
-        b = r.b;
-    }
+    const r = rgb.r;
+    const g = rgb.g;
+    const b = rgb.b;
     return {
         r: r * ratio,
         g: g * ratio,
@@ -123,7 +136,7 @@ function darker(r, g, b) {
     }
 }
 
-function shortStringOfInteger(n) {
+function shortStringOfInteger(n: number): string {
     if (n < 1000) {
         return sprintf('%d', n);
     } else if (n < 10000) {
@@ -139,7 +152,7 @@ function shortStringOfInteger(n) {
     }
 }
 
-export function board2intersections(board) {
+export function board2intersections(board: GoPosition) {
     const intersections = new Array(board.BOARD_SIZE2);
     for (let i = 0; i < intersections.length; i++) {
         const intersection  = new GoIntersectionState();
@@ -157,7 +170,7 @@ export function board2intersections(board) {
     return intersections;
 }
 
-function addCandidatesInfo(intersections, model, candidates) {
+function addCandidatesInfo(intersections: GoIntersectionState[], model: GoPosition, candidates: KataInfo[]) {
     const maxPlayouts = Math.max(...candidates.map(e => e.visits));
     const maxWinrate = Math.max(...candidates.map(e => e.winrate));
     const saturation = 0.75;
@@ -181,32 +194,33 @@ function addCandidatesInfo(intersections, model, candidates) {
         if (i === 0) {
             if (candidate.winrate < maxWinrate) {
                 intersection.borderWidth = "2px";
-                intersection.borderCoor = "red";
+                intersection.borderColor = "red";
             } else {
                 intersection.borderWidth = "1px";
                 const c = darker(color);
-                intersection.borderCoor = `rgba(${c.r},${c.g},${c.b},${alpha})`;
+                intersection.borderColor = `rgba(${c.r},${c.g},${c.b},${alpha})`;
             }
-        } else if (intersection.winrate === maxWinrate) {
+        } else if (intersection.winrate === maxWinrate.toFixed(1)) {
             intersection.borderWidth = "2px";
-            intersection.borderCoor = "blue";
+            intersection.borderColor = "blue";
         }
         intersection.fillColor = `rgba(${color.r},${color.g},${color.b},${alpha})`;
     }
 }
 
-function variationIntersections(model, candidates, candidate) {
+function variationIntersections(model: GoPosition, candidates: KataInfo[], candidate: string): GoIntersectionState[] {
     const info = candidates.find(e => e.move === candidate);
     if (!info) {
-        return null;
+        return [];
     }
     const position = GoPosition.copy(model);
+    console.log(info);
     for (const move of info.pv) {
         position.play(position.xyToPoint.apply(position, coord2xy(move)));
     }
     const intersections = board2intersections(position);
     let turn = model.turn;
-    const first = intersections[position.xyToPoint.apply(position, coord2xy(info.pv[0]))];
+    const first = intersections[position.xyToPoint.apply(position, coord2xy(candidate))];
     first.winrate = info.winrate.toFixed(1);
     first.playouts = info.visits;
     first.textColor = turn === BLACK ? "white" : "black";
@@ -222,8 +236,8 @@ function variationIntersections(model, candidates, candidate) {
     return intersections;
 }
 
-function addOwnership(intersections, model, ownership) {
-    if (this.model.turn === BLACK) {
+function addOwnership(intersections: GoIntersectionState[], model: GoPosition, ownership: number[]) {
+    if (model.turn === BLACK) {
         for (const [i, v] of ownership.entries()) {
             if (i >= model.BOARD_SIZE2) {
                 break;
@@ -245,20 +259,7 @@ function addOwnership(intersections, model, ownership) {
     }
 }
 
-export class GoIntersectionState {
-    constructor() {
-        this.stone = null;
-        this.number = null;
-        this.winrate = null;
-        this.playouts = null;
-        this.fillColor = null;
-        this.borderWidth = null;
-        this.borderColor = null;
-        this.backgroundColor = null;
-    }
-}
-
-function range(start, end) {
+function range(start: number, end: number): number[] {
     const result = [];
     if (start <= end) {
         for (let i = start; i <= end; i++) {
@@ -272,15 +273,29 @@ function range(start, end) {
     return result;
 }
 
-class GoBoard extends React.Component {
-    constructor(props) {
+interface GoBoardProps {
+    width: string;
+    height: string;
+    w: number;
+    h: number;
+    model: GoPosition;
+    candidates: KataInfo[];
+    onClickIntersection: (x: number, y: number) => void,
+}
+
+interface GoBoardState {
+    candidate: string | null;
+}
+
+class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
+    constructor(props: GoBoardProps) {
         super(props);
         this.state = {
             candidate: null
         };
     }
 
-    index(x, y) {
+    index(x: number, y: number): number {
         return this.props.w * (y - 1) + x - 1;
     }
 
@@ -288,7 +303,7 @@ class GoBoard extends React.Component {
 
     }*/
 
-    renderIntersection(intersections, x, y) {
+    renderIntersection(intersections: GoIntersectionState[], x: number, y: number) {
         const intersection = intersections[this.index(x, y)];
         return (
             <GoIntersection
@@ -301,6 +316,7 @@ class GoBoard extends React.Component {
                 winrate={intersection.winrate}
                 playouts={intersection.playouts}
                 fillColor={intersection.fillColor}
+                borderWidth={intersection.borderWidth}
                 borderColor={intersection.borderColor}
                 backgroundColor={intersection.backgroundColor}
             />
@@ -308,7 +324,7 @@ class GoBoard extends React.Component {
     }
 
     render() {
-        let intersections;
+        let intersections: GoIntersectionState[];
         if (this.state.candidate) {
             intersections = variationIntersections(this.props.model, this.props.candidates, this.state.candidate)
         } else {
@@ -324,9 +340,9 @@ class GoBoard extends React.Component {
         return (
             <div className="go-board" style={goBoardStyle}>
             <div className="go-board-content">
-                {range(parseInt(this.props.h), 1).map(y => (
+                {range(this.props.h, 1).map(y => (
                     <div className="go-row" key={y}>
-                        {range(1, parseInt(this.props.w)).map(x => this.renderIntersection(intersections, x, y))}
+                        {range(1, this.props.w).map(x => this.renderIntersection(intersections, x, y))}
                     </div>
                 ))}
             </div>
@@ -334,22 +350,39 @@ class GoBoard extends React.Component {
         );
     }
 
-    onMouseEnterIntersection(x, y) {
+    onMouseEnterIntersection(x: number, y: number) {
         const coord = xy2coord(x, y);
         if (this.props.candidates.map(e => e.move).includes(coord)) {
-            this.candidate = coord;
             this.setState({ candidate: coord });
         }
     }
 
-    onMouseLeaveIntersection(x, y) {
+    onMouseLeaveIntersection(x: number, y: number) {
         if (this.state.candidate) {
             this.setState({ candidate: null });
         }
     }
 }
 
-class GoIntersection extends React.PureComponent {
+interface GoIntersectionProps {
+    stone: string | undefined;
+    number: number | undefined;
+    winrate: string | undefined;
+    playouts: number | string | undefined;
+    fillColor: string | undefined;
+    borderWidth: string | undefined;
+    borderColor: string | undefined;
+    backgroundColor: string | undefined;
+    onClick: () => void;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+}
+
+interface GoIntersectionState {
+
+}
+
+class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersectionState> {
     render() {
         let url;
         switch (this.props.stone) {
@@ -360,14 +393,14 @@ class GoIntersection extends React.PureComponent {
             url = "url(https://storage.googleapis.com/mimiaka-storage/mimiaka/public/images/hamaguri2.png)";
             break;
             default:
-            url = null;
+            url = undefined;
         }
-        const intersectionStyle = {
+        const intersectionStyle: CSSProperties = {
             color: this.props.stone === "B" ? "white" : "black",
             backgroundImage: url,
             backgroundColor: this.props.backgroundColor,
         }
-        const infoStyle = {
+        const infoStyle: CSSProperties = {
             backgroundColor: this.props.fillColor,
             borderWidth: this.props.borderWidth,
             borderColor: this.props.borderColor,
