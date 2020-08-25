@@ -4,13 +4,13 @@
 
 import jssgf from "jssgf";
 
-type GoColor = 1 | 2;
-type GoIntersectionState = 0 | 1 | 2;
-
-export const PASS = -1;
 export const EMPTY = 0;
 export const BLACK = 1;
 export const WHITE = 2;
+const PASS = -1;
+
+type GoColor = 1 | 2; // BLACK, WHITE
+type GoIntersectionState = 0 | 1 | 2; // EMPTY, BLACK, WHITE
 
 export function opponentOf(color: GoColor): GoColor {
     return color === BLACK ? WHITE : BLACK;
@@ -32,6 +32,7 @@ class Marker {
     BOARD_SIZE2: number;
     value: number;
     marks: Int32Array;
+
     constructor(boardSize: number) {
         this.BOARD_SIZE = boardSize;
         this.BOARD_SIZE2 = boardSize * boardSize;
@@ -67,9 +68,9 @@ const HANDICAPS = [
 
 
 interface GoMove {
-    turn: 1 | 2;
+    turn: GoColor;
     point: number;
-    ko: number | null;
+    ko?: number;
     captives: number[];
     string: GoString;
 }
@@ -77,9 +78,9 @@ interface GoMove {
 class GoPosition {
     BOARD_SIZE: number;
     BOARD_SIZE2: number;
-    turn: 1 | 2;
-    state: { 1: Float32Array, 2: Float32Array };
-    ko: number | null;
+    turn: GoColor;
+    state: { [name in GoColor]: Float32Array };
+    ko?: number;
     recent8: number[];
     marker1: Marker;
     marker2: Marker;
@@ -95,7 +96,7 @@ class GoPosition {
 
     static fromSgf(sgf: string) {
         const [root] = jssgf.fastParse(sgf);
-        const p = new this(parseInt(root.SZ || '19'));
+        const p = new this(parseInt(root.SZ || "19"));
         let node = root;
         while (node._children.length > 0) {
             node = node._children[0];
@@ -135,14 +136,14 @@ class GoPosition {
         } else {
             this.turn = BLACK;
         }
-        this.ko = null;
+        this.ko = undefined;
     }
 
     moveToXy(s: string): [number, number] | -1 {
-        if (s === '') {
+        if (s === "") {
             return PASS;
         }
-        const offset = 'a'.charCodeAt(0) - 1;
+        const offset = "a".charCodeAt(0) - 1;
         return [s.charCodeAt(0) - offset, this.BOARD_SIZE - (s.charCodeAt(1) - offset) + 1];
     }
     
@@ -241,7 +242,7 @@ class GoPosition {
         }
     }
 
-    play(point: number): GoMove | null {
+    play(point: number): GoMove | undefined {
         if (point === PASS) {
             this.putRecent8(point);
             this.switchTurn();
@@ -254,7 +255,7 @@ class GoPosition {
             };
         }
         if (point === this.ko || this.getState(point) !== EMPTY) { // 着手禁止
-            return null;
+            return undefined;
         }
         this.setState(point, this.turn);
 
@@ -263,13 +264,13 @@ class GoPosition {
         const liberties = string.liberties.length;
         if (liberties === 0) { // 着手禁止
             this.setState(point, EMPTY); // restore
-            return null;
+            return undefined;
         }
         const ko = this.ko;
         if (captives.length === 1 && liberties === 1 && string.points.length === 1) {
             this.ko = string.liberties[0];
         } else {
-            this.ko = null;
+            this.ko = undefined;
         }
         this.putRecent8(point);
         const turn = this.turn;
@@ -435,23 +436,23 @@ class GoPosition {
     }
 
     toString(): string {
-        let string ='';
+        let string ="";
         for (let y = 1; y <= this.BOARD_SIZE; y++) {
             for (let x = 1; x <= this.BOARD_SIZE; x++) {
                 switch (this.getState(this.xyToPoint(x, y))) {
                     case EMPTY:
-                        string += '.';
+                        string += ".";
                         break;
                     case BLACK:
-                        string += 'X';
+                        string += "X";
                         break;
                     case WHITE:
-                        string += 'O';
+                        string += "O";
                         break;
                     default:
                 }
             }
-            string += '\n';
+            string += "\n";
         }
         return string;
     }

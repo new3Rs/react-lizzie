@@ -17,7 +17,6 @@ export interface KataInfo {
     visits: number,
     winrate: number,
     pv: string[],
-    prior: number,
 }
 
 export interface KataInfos {
@@ -48,7 +47,7 @@ class Gtp {
     _command(str: string) {
         this.inputDom.command.value = str;
         // submitメソッドはイベントハンドラを走らせない。
-        this.inputDom.dispatchEvent(new CustomEvent('submit'));
+        this.inputDom.dispatchEvent(new CustomEvent("submit"));
     }
 
     command(str: string) {
@@ -129,7 +128,7 @@ class Gtp {
          for (const infoStr of infoStrs) {
             const items = infoStr.trim().split(" ");
             const info: any = {};
-            while (items.length > 0) {
+            while (items.length > 1) {
                 const item = items.shift()!;
                 switch (item) {
                     case "move":
@@ -147,12 +146,16 @@ class Gtp {
                     break;
                 }
             }
-            result.info.push(info);
+            if ("move" in info && "visits" in info && "winrate" in info && "pv" in info) {
+                result.info.push(info as KataInfo);
+            } else {
+                console.log(info);
+                console.log(line);
+            }
         }
         if (ownership != null) {
             result.ownership = ownership.trim().split(" ").map(parseFloat);
         };
-        console.log(result);
         this.kataAnalyzeHandler!(result);
     }
 }

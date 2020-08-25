@@ -15,14 +15,14 @@ type RGB = {
 }
 
 class GoIntersectionState {
-    stone: string | undefined;
-    number: number | undefined;
-    winrate: string | undefined;
-    playouts: number | undefined;
-    fillColor: string | undefined;
-    borderWidth: string | undefined;
-    borderColor: string | undefined;
-    backgroundColor: string | undefined;
+    stone?: string;
+    number?: number;
+    winrate?: string;
+    playouts?: number;
+    fillColor?: string;
+    borderWidth?: string;
+    borderColor?: string;
+    backgroundColor?: string;
 
     constructor() {
         this.stone = undefined;
@@ -138,17 +138,17 @@ function darker(rgb: RGB): RGB {
 
 function shortStringOfInteger(n: number): string {
     if (n < 1000) {
-        return sprintf('%d', n);
+        return sprintf("%d", n);
     } else if (n < 10000) {
-        return sprintf('%.1fk', n / 1000);
+        return sprintf("%.1fk", n / 1000);
     } else if (n < 1000000) {
-        return sprintf('%.0fk', n / 1000);
+        return sprintf("%.0fk", n / 1000);
     } else if (n < 10000000) {
-        return sprintf('%.1fM', n / 1000000);
+        return sprintf("%.1fM", n / 1000000);
     } else if (n < 1000000000) {
-        return sprintf('%.0fM', n / 1000000);
+        return sprintf("%.0fM", n / 1000000);
     } else {
-        return sprintf('%.0G', n / 1000000000);
+        return sprintf("%.0G", n / 1000000000);
     }
 }
 
@@ -284,15 +284,13 @@ interface GoBoardProps {
 }
 
 interface GoBoardState {
-    candidate: string | null;
+    candidate?: string;
 }
 
 class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
     constructor(props: GoBoardProps) {
         super(props);
-        this.state = {
-            candidate: null
-        };
+        this.state = {}
     }
 
     index(x: number, y: number): number {
@@ -359,20 +357,20 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
 
     onMouseLeaveIntersection(x: number, y: number) {
         if (this.state.candidate) {
-            this.setState({ candidate: null });
+            this.setState({ candidate: undefined });
         }
     }
 }
 
 interface GoIntersectionProps {
-    stone: string | undefined;
-    number: number | undefined;
-    winrate: string | undefined;
-    playouts: number | string | undefined;
-    fillColor: string | undefined;
-    borderWidth: string | undefined;
-    borderColor: string | undefined;
-    backgroundColor: string | undefined;
+    stone?: string;
+    number?: number;
+    winrate?: string;
+    playouts?: number | string;
+    fillColor?: string;
+    borderWidth?: string;
+    borderColor?: string;
+    backgroundColor?: string;
     onClick: () => void;
     onMouseEnter: () => void;
     onMouseLeave: () => void;

@@ -1,7 +1,6 @@
 /**
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
-/* global FS */
 
 import React from "react";
 import SituationBar from "./SituationBar";
@@ -49,7 +48,7 @@ class GoAI extends React.Component<Props, State> {
         }
         this.gtp = new Gtp();
         document.getElementById("sgf")!.addEventListener("paste", async (e) => {
-            const sgf = (e.clipboardData || window.clipboardData).getData('text');
+            const sgf = (e.clipboardData || window.clipboardData).getData("text");
             const file = "tmp.sgf";
             FS.writeFile(file, sgf);
             await this.gtp.command(`loadsgf ${file}`);

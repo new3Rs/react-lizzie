@@ -2,7 +2,7 @@
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
 
-import React from 'react';
+import React from "react";
 
 interface Props {
     width: string;
