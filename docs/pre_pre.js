@@ -78,6 +78,9 @@ if (typeof Module === "undefined") {
 if (!("preRun" in Module)) {
     Module["preRun"] = [];
 }
+if (!("arguments" in Module)) {
+    Module["arguments"] = [];
+}
 Module["preRun"].push(function() {
     const params = new URL(location).searchParams;
     const cfgFile = params.get("config") || "gtp_auto.cfg";
@@ -88,9 +91,6 @@ Module["preRun"].push(function() {
         true, // 読み込み許可
         false // 書き込み許可
     );
-    if (!("arguments" in Module)) {
-        Module["arguments"] = [];
-    }
     Module["arguments"].push(params.get("subcommand") || "gtp");
     Module["arguments"].push("-model");
     Module["arguments"].push(params.get("model") || "web_model");

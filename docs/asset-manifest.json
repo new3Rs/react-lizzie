@@ -1,23 +1,15 @@
 {
   "files": {
     "main.css": "/react-lizzie/static/css/main.422964a6.chunk.css",
-    "main.js": "/react-lizzie/static/js/main.e6fb4b9a.chunk.js",
-    "main.js.map": "/react-lizzie/static/js/main.e6fb4b9a.chunk.js.map",
-    "runtime-main.js": "/react-lizzie/static/js/runtime-main.e4d801ba.js",
-    "runtime-main.js.map": "/react-lizzie/static/js/runtime-main.e4d801ba.js.map",
-    "static/js/2.e329c33a.chunk.js": "/react-lizzie/static/js/2.e329c33a.chunk.js",
-    "static/js/2.e329c33a.chunk.js.map": "/react-lizzie/static/js/2.e329c33a.chunk.js.map",
+    "main.js": "/react-lizzie/static/js/main.4ffee743.chunk.js",
+    "main.js.map": "/react-lizzie/static/js/main.4ffee743.chunk.js.map",
+    "runtime~main.js": "/react-lizzie/static/js/runtime~main.1dab5dbb.js",
+    "runtime~main.js.map": "/react-lizzie/static/js/runtime~main.1dab5dbb.js.map",
+    "static/js/2.529fc958.chunk.js": "/react-lizzie/static/js/2.529fc958.chunk.js",
+    "static/js/2.529fc958.chunk.js.map": "/react-lizzie/static/js/2.529fc958.chunk.js.map",
     "index.html": "/react-lizzie/index.html",
-    "precache-manifest.147d876b7cdd0a6a64ba072dd8ee02c4.js": "/react-lizzie/precache-manifest.147d876b7cdd0a6a64ba072dd8ee02c4.js",
+    "precache-manifest.562da6c050780a2dd211ee0faed6cf5c.js": "/react-lizzie/precache-manifest.562da6c050780a2dd211ee0faed6cf5c.js",
     "service-worker.js": "/react-lizzie/service-worker.js",
-    "static/css/main.422964a6.chunk.css.map": "/react-lizzie/static/css/main.422964a6.chunk.css.map",
-    "static/js/2.e329c33a.chunk.js.LICENSE.txt": "/react-lizzie/static/js/2.e329c33a.chunk.js.LICENSE.txt",
-    "static/js/main.e6fb4b9a.chunk.js.LICENSE.txt": "/react-lizzie/static/js/main.e6fb4b9a.chunk.js.LICENSE.txt"
-  },
-  "entrypoints": [
-    "static/js/runtime-main.e4d801ba.js",
-    "static/js/2.e329c33a.chunk.js",
-    "static/css/main.422964a6.chunk.css",
-    "static/js/main.e6fb4b9a.chunk.js"
-  ]
+    "static/css/main.422964a6.chunk.css.map": "/react-lizzie/static/css/main.422964a6.chunk.css.map"
+  }
 }

@@ -208,19 +208,14 @@ function addCandidatesInfo(intersections: GoIntersectionState[], model: GoPositi
     }
 }
 
-function variationIntersections(model: GoPosition, candidates: KataInfo[], candidate: string): GoIntersectionState[] {
-    const info = candidates.find(e => e.move === candidate);
-    if (!info) {
-        return [];
-    }
+function variationIntersections(model: GoPosition, info: KataInfo): GoIntersectionState[] {
     const position = GoPosition.copy(model);
-    console.log(info);
     for (const move of info.pv) {
         position.play(position.xyToPoint.apply(position, coord2xy(move)));
     }
     const intersections = board2intersections(position);
     let turn = model.turn;
-    const first = intersections[position.xyToPoint.apply(position, coord2xy(candidate))];
+    const first = intersections[position.xyToPoint.apply(position, coord2xy(info.move))];
     first.winrate = info.winrate.toFixed(1);
     first.playouts = info.visits;
     first.textColor = turn === BLACK ? "white" : "black";
@@ -323,9 +318,14 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
 
     render() {
         let intersections: GoIntersectionState[];
+        let info: KataInfo | undefined;
         if (this.state.candidate) {
-            intersections = variationIntersections(this.props.model, this.props.candidates, this.state.candidate)
-        } else {
+            info = this.props.candidates.find(e => e.move === this.state.candidate);
+            if (info != null) {
+                intersections = variationIntersections(this.props.model, info);
+            }
+        }
+        if (info == null) {
             intersections = board2intersections(this.props.model);
             if (this.props.candidates) {
                 addCandidatesInfo(intersections, this.props.model, this.props.candidates);
