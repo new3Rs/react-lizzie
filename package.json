@@ -5,9 +5,9 @@
   "homepage": "https://new3rs.github.io/react-lizzie",
   "dependencies": {
     "jssgf": "^0.3.8",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-scripts": "3.0.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "^3.4.3",
     "sprintf-js": "^1.1.2",
     "worker-rmi": "^1.0.8"
   },
@@ -33,8 +33,8 @@
     ]
   },
   "devDependencies": {
-    "typescript": "^3.9.7",
-    "@types/react": "^16.9.46",
-    "@types/sprintf-js": "^1.1.2"
+    "@types/react": "^16.9.49",
+    "@types/sprintf-js": "^1.1.2",
+    "typescript": "^3.9.7"
   }
 }
