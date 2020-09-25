@@ -128,7 +128,11 @@ class GoAI extends React.Component<Props, State> {
             const turn = this.state.model.turn;
             this.setState((state, props) => {
                 state.model.play(state.model.xyToPoint(x, y));
-                return { model: state.model };
+                return {
+                    model: state.model,
+                    candidates: [],
+                    ownership: []
+                };
             });
             await this.gtp.command(`play ${turn === BLACK ? "black" : "white"} ${xy2coord(x, y)}`);
             this.kataAnalyze();
