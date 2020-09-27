@@ -63,11 +63,17 @@ class GoAI extends React.Component<Props, State> {
             this.setState({ model: model });
             this.kataAnalyze();
         }, false);
-        if (this.props.gtp === "wasm") {
-            window.goAI = this; // KataGoが準備できたらkataAnalyzeを始めるため(pre_pre.js)
-            appendScript("pre_pre.js", () => {
-                appendScript("katago.js");
-            });
+        if (this.props.gtp === "katago") {
+            if (typeof SharedArrayBuffer === "undefined") {
+                const dom = document.getElementById("message")!;
+                dom.innerText = "SharedArrayBuffer, which is necessary for KataGo, is not available. Please specify gtp in query.";
+                dom.style.color = "red";
+            } else {
+                window.goAI = this; // KataGoが準備できたらkataAnalyzeを始めるため(pre_pre.js)
+                appendScript("pre_pre.js", () => {
+                    appendScript("katago.js");
+                });
+            }
         } else {
             this.start();
         }

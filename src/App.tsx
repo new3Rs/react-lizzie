@@ -2,7 +2,7 @@ import React from "react";
 import GoAI from "./GoAI";
 
 const App = () => {
-  let gtp = "wasm";
+  let gtp = "katago";
   if (window.location.search.startsWith("?")) {
     const assigns = window.location.search.substr(1).split("&");
     for (const assign of assigns) {

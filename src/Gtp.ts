@@ -38,7 +38,7 @@ class Gtp {
 
     constructor(url: string, callback?: () => void) {
         this.buffer = "";
-        if (url === "wasm") {
+        if (url === "katago") {
             this.socket = window.Module["input"];
         } else {
             this.socket = new WebSocket(url);
