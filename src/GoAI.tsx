@@ -80,7 +80,7 @@ class GoAI extends React.Component<Props, State> {
     }
 
     render() {
-        const size = "500px";
+        const size = `${Math.min(window.innerWidth, window.innerHeight)}px`;
         return (
             <div>
                 <SituationBar

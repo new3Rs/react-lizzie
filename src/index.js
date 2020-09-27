@@ -8,9 +8,7 @@ import { render } from 'react-dom';
 import App from './App';
 import './index.css';
 
-if (typeof SharedArrayBuffer !== "undefined") {
-  render(<App />, document.getElementById('app-container'));
-}
+render(<App />, document.getElementById('app-container'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
