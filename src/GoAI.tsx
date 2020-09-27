@@ -15,6 +15,12 @@ function appendScript(URL: string, onload: (() => void) | null = null) {
 	document.body.appendChild(el);
 }
 
+function updateMessage(str: string, color: string = "black") {
+    const dom = document.getElementById("message")!;
+    dom.innerText = str;
+    dom.style.color = color;
+}
+
 declare var FS: any;
 
 declare global {
@@ -65,11 +71,9 @@ class GoAI extends React.Component<Props, State> {
         }, false);
         if (this.props.gtp === "katago") {
             if (typeof SharedArrayBuffer === "undefined") {
-                const dom = document.getElementById("message")!;
-                dom.innerText = "SharedArrayBuffer, which is necessary for KataGo, is not available. Please specify gtp in query.";
-                dom.style.color = "red";
+                updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Please specify gtp in hash.", "red");
             } else {
-                window.goAI = this; // KataGoが準備できたらkataAnalyzeを始めるため(pre_pre.js)
+                window.goAI = this; // KataGoが準備できたら(pre_pre.js) startをコールする
                 appendScript("pre_pre.js", () => {
                     appendScript("katago.js");
                 });
@@ -80,9 +84,13 @@ class GoAI extends React.Component<Props, State> {
     }
 
     start() {
-        this.gtp = new Gtp(this.props.gtp, () => {
-            this.kataAnalyze();
-        });
+        try {
+            this.gtp = new Gtp(this.props.gtp, () => {
+                this.kataAnalyze();
+            });
+        } catch(e) {
+            updateMessage(e.toString(), "red");
+        }
     }
 
     render() {
