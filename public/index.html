@@ -44,25 +44,12 @@
     </p>
     <a href="https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1442035374&mt=8"><img src="https://new3rs.github.io/a_master_of_go/images/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" alt="Download on the App Store"></a>
   </div>
-  <!-- pre_pre.jsが使うDOM -->
-  <div id="stdio-container" style="display: none">
+  <div>
     <p>Wait for a minute. Lizzie-style analysis will start.</p>
-    <form id="input">
+    <form>
       <label for="sgf">SGF</label>
       <textarea name="sgf" id="sgf" rows="10" style="width: 95%" placeholder="paste SGF here"></textarea>
     </form>
   </div>
-
-  <script type="text/javascript">
-  if (typeof SharedArrayBuffer === "undefined") {
-    alert("This browser is not supported. Please use the latest Google Chrome.");
-  } else {
-    document.getElementById("google-chrome").setAttribute("style", "display: none;");
-    document.getElementById("stdio-container").removeAttribute("style");
-    if (typeof OffscreenCanvas === "undefined") {
-      alert("We recommend the latest Google Chrome accelerating KataGo by OffscreenCanvas!");
-    }
-  }
-  </script>
 </body>
 </html>
