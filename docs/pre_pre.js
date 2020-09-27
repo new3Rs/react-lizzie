@@ -1,73 +1,87 @@
 // status-  1: ready, -1: fail
 function katagoStatusHandler(status) {
-    const command = document.getElementById("input").command
     switch (status) {
         case 1:
-        command.removeAttribute("disabled");
-        command.setAttribute("placeholder", "Input a GTP command");
-        command.focus();
         setTimeout(function() {
             if (window.goAI) {
-                window.goAI.kataAnalyze();
+                window.goAI.start();
             }
         }, 0);
         break;
         case -1:
-        command.setAttribute("placeholder", "Engine failed loading a weight");
+        console.log("KataGo failed to start");
+        break;
     }
 }
 
-class Input {
+class StdStream {
     constructor() {
-        this.buffer = "";
-
-        document.getElementById("input").addEventListener("submit", event => {
-            event.preventDefault();
-            this.buffer += event.currentTarget.command.value + "\n";
-            document.getElementById("log").value += event.currentTarget.command.value + "\n";
-            event.currentTarget.command.value = "";
-            if (this.resolve) {
-                this.resolve();
-            }
-        }, false);
+        this.stdin = "";
+        this.stdout = "";
+        this.stderr = "";
+        this.onmessage = null;
+        this.onerror = null;
+        this.resolve = null;
+        this.reject = null;
     }
 
-    callback() {
-        if (!this.buffer) {
+    send(str) {
+        this.stdin += str;
+        if (this.resolve != null) {
+            this.resolve();
+        }
+    }
+
+    input() {
+        if (this.stdin.length === 0) {
             return null;
         }
-        const c = this.buffer[0];
-        this.buffer = this.buffer.substr(1);
-        return c.charCodeAt(0);
+        const code = this.stdin.charCodeAt(0);
+        this.stdin = this.stdin.substr(1);
+        return code;
     }
-    
+
     wait() {
         return new Promise((res, rej) => {
             this.resolve = res;
             this.reject = rej;
         });
     }
-}
 
-class Output {
-    constructor() {
-        this.buffer = "";
-    }
-
-    callback(char) {
-        switch (char) {
-            case 0: // NULL
+    output(code) {
+        switch (code) {
             case 10: // "\n"
-            const output = document.getElementById("output")
-            output.value += this.buffer;
-            document.getElementById("log").value += this.buffer + "\n";
-            output.dispatchEvent(new CustomEvent("message"));
-            this.buffer = "";
-            break;
-            case 13: // "\r"
+            this.stdout += String.fromCharCode(code);
+            // no break;
+            case 0: // NULL
+            this.flushStdout();
             break;
             default:
-            this.buffer += String.fromCharCode(char);
+            this.stdout += String.fromCharCode(code);
+        }
+    }
+
+    flushStdout() {
+        if (this.onmessage) {
+            const event = new CustomEvent("message");
+            event.data = this.stdout;
+            this.stdout = "";
+            setTimeout(() => { this.onmessage(event); }, 0);
+        }
+    }
+
+    error(code) {
+        if (code !== 0) {
+            this.stderr += String.fromCharCode(code);
+        }
+        if (code === 10) { // "\n"
+            if (this.stderr.includes("GTP ready")) {
+                const message = "GTP ready\n";
+                for (let i = 0; i < message.length; i++) {
+                    this.output(message.charCodeAt(i));
+                }
+            }
+            this.stderr = "";
         }
     }
 }
@@ -97,9 +111,7 @@ Module["preRun"].push(function() {
     Module["arguments"].push("-config");
     Module["arguments"].push(cfgFile);
 
-    const input = new Input();
-    const output = new Output();
-    FS.init(input.callback.bind(input), output.callback.bind(output), null);
-    Module["input"] = input;
-    Module["output"] = output;
+    const stdio = new StdStream();
+    FS.init(stdio.input.bind(stdio), stdio.output.bind(stdio), stdio.error.bind(stdio));
+    Module["input"] = stdio;
 });

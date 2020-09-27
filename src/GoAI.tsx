@@ -8,17 +8,25 @@ import GoBoard from "./GoBoard";
 import GoPosition, { BLACK, xy2coord } from "./GoPosition";
 import Gtp, { KataInfo } from "./Gtp";
 
+function appendScript(URL: string, onload: (() => void) | null = null) {
+	var el = document.createElement('script');
+    el.src = URL;
+    el.onload = onload;
+	document.body.appendChild(el);
+}
+
 declare var FS: any;
 
 declare global {
     interface Window {
         clipboardData?: any;
         goAI: GoAI;
+        Module: any;
     }
 }
 
 interface Props {
-
+    gtp: string;
 }
 
 interface State {
@@ -33,7 +41,7 @@ interface State {
 class GoAI extends React.Component<Props, State> {
     size: number;
     byoyomi: number;
-    gtp: Gtp;
+    gtp!: Gtp;
     constructor(props: Props) {
         super(props)
         this.size = 19;
@@ -46,7 +54,6 @@ class GoAI extends React.Component<Props, State> {
             candidates: [],
             ownership: []
         }
-        this.gtp = new Gtp();
         document.getElementById("sgf")!.addEventListener("paste", async (e) => {
             const sgf = (e.clipboardData || window.clipboardData).getData("text");
             const file = "tmp.sgf";
@@ -56,7 +63,20 @@ class GoAI extends React.Component<Props, State> {
             this.setState({ model: model });
             this.kataAnalyze();
         }, false);
-        window.goAI = this; // KataGoが準備できたらkataAnalyzeを始めるため(pre_pre.js)
+        if (this.props.gtp === "wasm") {
+            window.goAI = this; // KataGoが準備できたらkataAnalyzeを始めるため(pre_pre.js)
+            appendScript("pre_pre.js", () => {
+                appendScript("katago.js");
+            });
+        } else {
+            this.start();
+        }
+    }
+
+    start() {
+        this.gtp = new Gtp(this.props.gtp, () => {
+            this.kataAnalyze();
+        });
     }
 
     render() {

@@ -29,52 +29,66 @@ interface GtpInputElement extends HTMLFormElement {
 }
 
 class Gtp {
-    inputDom: GtpInputElement;
-    outputDom: HTMLTextAreaElement;
+    socket!: WebSocket | any; // any means StdStream
+    buffer: string;
     resolve?: (line: string) => void;
     reject?: (line: string) => void;
     LzAnalyzeHandler?: (infos: LzInfo[]) => void;
     kataAnalyzeHandler?: (infos: KataInfos) => void;
 
-    constructor() {
-        this.inputDom = document.getElementById("input") as GtpInputElement;
-        this.outputDom = document.getElementById("output") as HTMLTextAreaElement;
-        this.outputDom.addEventListener("message", event => {
-            this.process(this.outputDom.value);
-            this.outputDom.value = "";
-        }, false);
+    constructor(url: string, callback?: () => void) {
+        this.buffer = "";
+        if (url === "wasm") {
+            this.socket = window.Module["input"];
+        } else {
+            this.socket = new WebSocket(url);
+        }
+        this.socket.onmessage = (event: MessageEvent) => {
+            if (event.data.includes("GTP ready")) {
+                this.socket.onmessage = (event: MessageEvent) => {
+                    this.buffer += event.data;
+                    const lines = this.buffer.split("\n");
+                    this.buffer = lines.pop()!;
+                    for (const line of lines) {
+                        this.process(line);
+                    }
+                };
+                if (callback) {
+                    callback();
+                }
+            }
+        };
+        this.socket.onerror = (err: Error) => {
+            console.log("onerror", err);
+        }
+        if (!(this.socket instanceof WebSocket)) {
+            this.socket.flushStdout();
+        }
     }
+
     _command(str: string) {
-        this.inputDom.command.value = str;
-        // submitメソッドはイベントハンドラを走らせない。
-        this.inputDom.dispatchEvent(new CustomEvent("submit"));
+        this.socket.send(str + "\n");
     }
 
     command(str: string) {
         return new Promise((res, rej) => {
-            if (this.inputDom.command.getAttribute("disabled") != null) {
-                return;
-            }
             this.LzAnalyzeHandler = undefined;
             this.resolve = res;
             this.reject = rej;
             this._command(str);
         });
     }
+
     lzAnalyze(interval: number, handler: (infos: LzInfo[]) => void) {
-        if (this.inputDom.command.getAttribute("disabled") != null) {
-            return;
-        }
         this.LzAnalyzeHandler = handler;
         this._command(`lz-analyze ${interval}`);
     }
+
     kataAnalyze(interval: number, handler: (infos: KataInfos) => void) {
-        if (this.inputDom.command.getAttribute("disabled") != null) {
-            return;
-        }
         this.kataAnalyzeHandler = handler;
         this._command(`kata-analyze ${interval} ownership true`);
     }
+
     process(line: string) {
         if (line.startsWith("=")) {
             if (this.resolve) {

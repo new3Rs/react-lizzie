@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "37f0b433ac045f415bc87d196b97192b",
+    "revision": "65c1acf77b2624b96b908c4869415b3f",
     "url": "/react-lizzie/index.html"
   },
   {
-    "revision": "4733b69304fdb251a9cc",
+    "revision": "11a5484be1d1b7bf6c71",
     "url": "/react-lizzie/static/css/main.31628e52.chunk.css"
   },
   {
@@ -16,12 +16,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-lizzie/static/js/2.9f360696.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "4733b69304fdb251a9cc",
-    "url": "/react-lizzie/static/js/main.af3feff5.chunk.js"
+    "revision": "11a5484be1d1b7bf6c71",
+    "url": "/react-lizzie/static/js/main.a18bc6c7.chunk.js"
   },
   {
     "revision": "c10d37fcb8cfc0051304c93e620052be",
-    "url": "/react-lizzie/static/js/main.af3feff5.chunk.js.LICENSE.txt"
+    "url": "/react-lizzie/static/js/main.a18bc6c7.chunk.js.LICENSE.txt"
   },
   {
     "revision": "660d3b41f93eb153197d",
