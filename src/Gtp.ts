@@ -31,19 +31,20 @@ interface GtpInputElement extends HTMLFormElement {
 class Gtp {
     socket!: WebSocket | any; // any means StdStream
     buffer: string;
+    lastCommand?: string;
     resolve?: (line: string) => void;
     reject?: (line: string) => void;
     LzAnalyzeHandler?: (infos: LzInfo[]) => void;
     kataAnalyzeHandler?: (infos: KataInfos) => void;
 
-    constructor(url: string, callback?: () => void) {
+    constructor(url: string, callback?: () => void, error?: (err: ErrorEvent) => void) {
         this.buffer = "";
         if (url === "katago") {
             this.socket = window.Module["input"];
         } else {
             this.socket = new WebSocket(url);
         }
-        this.socket.onopen = () => {
+        this.socket.onopen = (event: Event) => {
             this.socket.onmessage = (event: MessageEvent) => {
                 this.buffer += event.data;
                 const lines = this.buffer.split("\n");
@@ -56,15 +57,26 @@ class Gtp {
                 callback();
             }
         }
-        this.socket.onerror = (err: Error) => {
+        this.socket.onerror = (err: ErrorEvent) => {
             console.log("onerror", err);
+            if (error) {
+                error(err);
+            }
         }
         if (!(this.socket instanceof WebSocket)) {
-            this.socket.flushStdout();
+            setTimeout(() => { this.socket.onopen(new CustomEvent("open")); }, 0);
         }
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                this.resume();
+            } else {
+                this.suspend();
+            }
+        }, false);
     }
 
     _command(str: string) {
+        this.lastCommand = str;
         this.socket.send(str + "\n");
     }
 
@@ -169,6 +181,16 @@ class Gtp {
             result.ownership = ownership.trim().split(" ").map(parseFloat);
         };
         this.kataAnalyzeHandler!(result);
+    }
+
+    suspend() {
+        this.socket.send("\n");
+    }
+
+    resume() {
+        if (this.lastCommand) {
+            this._command(this.lastCommand);
+        }
     }
 }
 

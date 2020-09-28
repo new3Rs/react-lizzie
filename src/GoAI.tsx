@@ -71,7 +71,8 @@ class GoAI extends React.Component<Props, State> {
         }, false);
         if (this.props.gtp === "katago") {
             if (typeof SharedArrayBuffer === "undefined") {
-                updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Please specify gtp in hash.", "red");
+                updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Trying to connect localhost websocket server...", "yellow");
+                this.start("ws://localhost:5001");
             } else {
                 window.goAI = this; // KataGoが準備できたら(pre_pre.js) startをコールする
                 appendScript("pre_pre.js", () => {
@@ -79,14 +80,16 @@ class GoAI extends React.Component<Props, State> {
                 });
             }
         } else {
-            this.start();
+            this.start(this.props.gtp);
         }
     }
 
-    start() {
+    start(url: string) {
         try {
-            this.gtp = new Gtp(this.props.gtp, () => {
+            this.gtp = new Gtp(url, () => {
                 this.kataAnalyze();
+            }, (err) => {
+                updateMessage(`failed to connect ${(err?.target as WebSocket).url}`, "red");
             });
         } catch(e) {
             updateMessage(e.toString(), "red");

@@ -4,7 +4,7 @@ function katagoStatusHandler(status) {
         case 1:
         setTimeout(function() {
             if (window.goAI) {
-                window.goAI.start();
+                window.goAI.start("katago");
             }
         }, 0);
         break;
@@ -19,6 +19,7 @@ class StdStream {
         this.stdin = "";
         this.stdout = "";
         this.stderr = "";
+        this.onopen = null;
         this.onmessage = null;
         this.onerror = null;
         this.resolve = null;
