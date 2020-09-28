@@ -5,7 +5,8 @@ React Lizzie is a React mock-up of Lizzie.
 ## Demo
 
 ### React Lizzie with KataGo on Browser
-https://new3rs.github.io/react-lizzie/index.html
+https://new3rs.github.io/react-lizzie/
+
 
 ## References
 

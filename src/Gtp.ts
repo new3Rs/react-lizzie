@@ -43,21 +43,19 @@ class Gtp {
         } else {
             this.socket = new WebSocket(url);
         }
-        this.socket.onmessage = (event: MessageEvent) => {
-            if (event.data.includes("GTP ready")) {
-                this.socket.onmessage = (event: MessageEvent) => {
-                    this.buffer += event.data;
-                    const lines = this.buffer.split("\n");
-                    this.buffer = lines.pop()!;
-                    for (const line of lines) {
-                        this.process(line);
-                    }
-                };
-                if (callback) {
-                    callback();
+        this.socket.onopen = () => {
+            this.socket.onmessage = (event: MessageEvent) => {
+                this.buffer += event.data;
+                const lines = this.buffer.split("\n");
+                this.buffer = lines.pop()!;
+                for (const line of lines) {
+                    this.process(line);
                 }
+            };
+            if (callback) {
+                callback();
             }
-        };
+        }
         this.socket.onerror = (err: Error) => {
             console.log("onerror", err);
         }
