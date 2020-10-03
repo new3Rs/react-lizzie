@@ -67,7 +67,7 @@ const HANDICAPS = [
 ];
 
 
-interface GoMove {
+export interface GoMove {
     turn: GoColor;
     point: number;
     ko?: number;

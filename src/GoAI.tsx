@@ -5,7 +5,7 @@
 import React from "react";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
-import GoPosition, { BLACK, xy2coord } from "./GoPosition";
+import GoPosition, { BLACK, xy2coord, GoMove } from "./GoPosition";
 import Gtp, { KataInfo } from "./Gtp";
 
 function appendScript(URL: string, onload: (() => void) | null = null) {
@@ -40,6 +40,7 @@ interface State {
     black: string;
     white: string;
     model: GoPosition;
+    history: GoMove[];
     candidates: KataInfo[];
     ownership: number[];
 }
@@ -57,6 +58,7 @@ class GoAI extends React.Component<Props, State> {
             black: "",
             white: "",
             model: new GoPosition(this.size, 0),
+            history: [],
             candidates: [],
             ownership: []
         }
@@ -113,7 +115,13 @@ class GoAI extends React.Component<Props, State> {
                     h={this.size}
                     candidates={this.state.candidates}
                     model={this.state.model}
-                    onClickIntersection={(x, y) => this.play(x, y)}
+                    onClickIntersection={(x, y) => {
+                        if (this.state.history[this.state.history.length - 1]?.point === this.state.model.xyToPoint(x, y)) {
+                            this.undo();
+                        } else {
+                            this.play(x, y);
+                        }
+                    }}
                 />
             </div>
         );
@@ -164,14 +172,39 @@ class GoAI extends React.Component<Props, State> {
         try {
             const turn = this.state.model.turn;
             this.setState((state, props) => {
-                state.model.play(state.model.xyToPoint(x, y));
+                const move = state.model.play(state.model.xyToPoint(x, y));
+                if (move != null) {
+                    state.history.push(move);
+                }
                 return {
                     model: state.model,
+                    history: state.history,
                     candidates: [],
                     ownership: []
                 };
             });
-            await this.gtp.command(`play ${turn === BLACK ? "black" : "white"} ${xy2coord(x, y)}`);
+            await this.gtp.play(turn === BLACK ? "black" : "white", xy2coord(x, y));
+            this.kataAnalyze();
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async undo() {
+        try {
+            this.setState((state, props) => {
+                const move = state.history.pop();
+                if (move != null) {
+                    state.model.undoPlay(move);
+                }
+                return {
+                    model: state.model,
+                    history: state.history,
+                    candidates: [],
+                    ownership: []
+                };
+            });
+            await this.gtp.undo();
             this.kataAnalyze();
         } catch (e) {
             console.log(e);
