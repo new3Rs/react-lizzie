@@ -62,14 +62,29 @@ class GoAI extends React.Component<Props, State> {
             candidates: [],
             ownership: []
         }
-        document.getElementById("sgf")!.addEventListener("paste", async (e) => {
-            const sgf = (e.clipboardData || window.clipboardData).getData("text");
-            const file = "tmp.sgf";
-            FS.writeFile(file, sgf);
-            await this.gtp.command(`loadsgf ${file}`);
-            const model = GoPosition.fromSgf(sgf);
-            this.setState({ model: model });
-            this.kataAnalyze();
+        document.getElementById("sgf")!.addEventListener("change", async (event) => {
+            if (event == null) {
+                return;
+            }
+            if (event.currentTarget == null) {
+                return;
+            }
+            const target = event.currentTarget as any;
+            if (target.files.length === 0) {
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async (event: Event) => {
+                const target = event.target as any;
+                const sgf = target.result;
+                const filename = "tmp.sgf";
+                FS.writeFile(filename, sgf);
+                await this.gtp.command(`loadsgf ${filename}`);
+                const model = GoPosition.fromSgf(sgf);
+                this.setState({ model: model });
+                this.kataAnalyze();
+            };
+            reader.readAsText(target.files[0]);
         }, false);
         if (this.props.gtp === "katago") {
             if (typeof SharedArrayBuffer === "undefined") {
@@ -89,6 +104,7 @@ class GoAI extends React.Component<Props, State> {
     start(url: string) {
         try {
             this.gtp = new Gtp(url, () => {
+                updateMessage("");
                 this.kataAnalyze();
             }, (err) => {
                 updateMessage(`failed to connect ${(err?.target as WebSocket).url}`, "red");
