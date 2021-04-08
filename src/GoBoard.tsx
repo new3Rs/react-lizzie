@@ -382,20 +382,16 @@ interface GoIntersectionState {
 
 class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersectionState> {
     render() {
-        let url;
+        let className = "go-intersection";
         switch (this.props.stone) {
             case "B":
-            url = "url(https://storage.googleapis.com/mimiaka-storage/mimiaka/public/images/nachiguro2.png)";
+            className += " go-intersection-black";
             break;
             case "W":
-            url = "url(https://storage.googleapis.com/mimiaka-storage/mimiaka/public/images/hamaguri2.png)";
+            className += " go-intersection-white";
             break;
-            default:
-            url = undefined;
         }
         const intersectionStyle: CSSProperties = {
-            color: this.props.stone === "B" ? "white" : "black",
-            backgroundImage: url,
             backgroundColor: this.props.backgroundColor,
         }
         const infoStyle: CSSProperties = {
@@ -404,7 +400,7 @@ class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersec
             borderColor: this.props.borderColor,
         }
         return (
-            <div className="go-intersection" style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave}>
+            <div className={className} style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} onTouchEnd={() => { this.onTouchEnd(); }}>
                 <div className="go-intersection-number">{this.props.number}</div>
                 <div className="go-intersection-info" style={infoStyle}>
                     <div>{this.props.winrate}</div>
@@ -412,6 +408,10 @@ class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersec
                 </div>
             </div>
         );
+    }
+
+    onTouchEnd() {
+        setInterval(this.props.onMouseLeave, 1000);
     }
 }
 

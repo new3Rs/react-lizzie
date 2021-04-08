@@ -3,7 +3,7 @@
  */
 
  .go-board {
-    background-image: url(https://storage.googleapis.com/mimiaka-storage/mimiaka/public/images/goban.jpg);
+    background-image: url(./images/goban.jpg);
     background-size: contain;
 }
 
@@ -58,4 +58,14 @@
     align-items: center;
     justify-content: center;
     font-size: 70%;
+}
+
+.go-intersection-black {
+    color: white;
+    background-image: url(./images/nachiguro2.png);
+}
+
+.go-intersection-white {
+    color: black;
+    background-image: url(./images/hamaguri2.png);
 }
