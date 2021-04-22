@@ -34,6 +34,7 @@
     ]
   },
   "devDependencies": {
+    "@types/emscripten": "^1.39.4",
     "@types/react": "^16.9.49",
     "@types/react-modal": "^3.12.0",
     "@types/sprintf-js": "^1.1.2",

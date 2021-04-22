@@ -3,6 +3,7 @@
  */
 
 import React from "react";
+import StdStream from "./StdStream";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
 import GoPosition, { BLACK, xy2coord, GoMove } from "./GoPosition";
@@ -19,16 +20,6 @@ function updateMessage(str: string, color: string = "black") {
     const dom = document.getElementById("message")!;
     dom.innerText = str;
     dom.style.color = color;
-}
-
-declare var FS: any;
-
-declare global {
-    interface Window {
-        clipboardData?: any;
-        goAI: GoAI;
-        Module: any;
-    }
 }
 
 interface Props {
@@ -91,10 +82,48 @@ class GoAI extends React.Component<Props, State> {
                 updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Trying to connect localhost websocket server...", "yellow");
                 this.start("ws://localhost:5001");
             } else {
-                window.goAI = this; // KataGoが準備できたら(pre_pre.js) startをコールする
-                appendScript("pre_pre.js", () => {
-                    appendScript("katago.js");
+                window.katagoStatusHandler = (status: number) => {
+                    switch (status) {
+                        case 1:
+                        setTimeout(() => {
+                            this.start("katago");
+                        }, 0);
+                        break;
+                        case -1:
+                        console.log("KataGo failed to start");
+                        break;
+                    }
+                }
+                if (typeof window.Module === "undefined") {
+                    window.Module = {};
+                }
+                if (!("preRun" in window.Module)) {
+                    window.Module["preRun"] = [];
+                }
+                if (!("arguments" in window.Module)) {
+                    window.Module["arguments"] = [];
+                }
+                window.Module["preRun"].push(function() {
+                    const params = new URL(window.location.toString()).searchParams;
+                    const cfgFile = params.get("config") || "gtp_auto.cfg";
+                    FS.createPreloadedFile(
+                        FS.cwd(),
+                        cfgFile,
+                        cfgFile,
+                        true, // 読み込み許可
+                        false // 書き込み許可
+                    );
+                    window.Module["arguments"].push(params.get("subcommand") || "gtp");
+                    window.Module["arguments"].push("-model");
+                    window.Module["arguments"].push(params.get("model") || "web_model");
+                    window.Module["arguments"].push("-config");
+                    window.Module["arguments"].push(cfgFile);
+                
+                    const stdio = new StdStream();
+                    FS.init(stdio.input.bind(stdio), stdio.output.bind(stdio), stdio.error.bind(stdio));
+                    window.Module["input"] = stdio;
                 });
+                appendScript("katago.js");
             }
         } else {
             this.start(this.props.gtp);
