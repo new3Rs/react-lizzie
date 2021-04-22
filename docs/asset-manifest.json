@@ -1,23 +1,24 @@
 {
   "files": {
-    "main.css": "/react-lizzie/static/css/main.31628e52.chunk.css",
-    "main.js": "/react-lizzie/static/js/main.80242abe.chunk.js",
-    "main.js.map": "/react-lizzie/static/js/main.80242abe.chunk.js.map",
+    "main.css": "/react-lizzie/static/css/main.1fc5481d.chunk.css",
+    "main.js": "/react-lizzie/static/js/main.0c126065.chunk.js",
+    "main.js.map": "/react-lizzie/static/js/main.0c126065.chunk.js.map",
     "runtime-main.js": "/react-lizzie/static/js/runtime-main.e4d801ba.js",
     "runtime-main.js.map": "/react-lizzie/static/js/runtime-main.e4d801ba.js.map",
     "static/js/2.1186f69e.chunk.js": "/react-lizzie/static/js/2.1186f69e.chunk.js",
     "static/js/2.1186f69e.chunk.js.map": "/react-lizzie/static/js/2.1186f69e.chunk.js.map",
     "index.html": "/react-lizzie/index.html",
-    "precache-manifest.427a8cb7dd788bbc4af965730fe2e621.js": "/react-lizzie/precache-manifest.427a8cb7dd788bbc4af965730fe2e621.js",
+    "precache-manifest.6054c8ed5b79673cbcd0fb135f361747.js": "/react-lizzie/precache-manifest.6054c8ed5b79673cbcd0fb135f361747.js",
     "service-worker.js": "/react-lizzie/service-worker.js",
-    "static/css/main.31628e52.chunk.css.map": "/react-lizzie/static/css/main.31628e52.chunk.css.map",
+    "static/css/main.1fc5481d.chunk.css.map": "/react-lizzie/static/css/main.1fc5481d.chunk.css.map",
     "static/js/2.1186f69e.chunk.js.LICENSE.txt": "/react-lizzie/static/js/2.1186f69e.chunk.js.LICENSE.txt",
-    "static/js/main.80242abe.chunk.js.LICENSE.txt": "/react-lizzie/static/js/main.80242abe.chunk.js.LICENSE.txt"
+    "static/js/main.0c126065.chunk.js.LICENSE.txt": "/react-lizzie/static/js/main.0c126065.chunk.js.LICENSE.txt",
+    "static/media/GoBoard.css": "/react-lizzie/static/media/nachiguro2.78662eed.png"
   },
   "entrypoints": [
     "static/js/runtime-main.e4d801ba.js",
     "static/js/2.1186f69e.chunk.js",
-    "static/css/main.31628e52.chunk.css",
-    "static/js/main.80242abe.chunk.js"
+    "static/css/main.1fc5481d.chunk.css",
+    "static/js/main.0c126065.chunk.js"
   ]
 }
