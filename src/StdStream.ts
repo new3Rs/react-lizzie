@@ -1,9 +1,12 @@
-class StdStream {
+import Socket from "./Socket";
+
+class StdStream implements Socket {
     stdin: string;
     stdout: string;
     stderr: string;
-    onopen?: (event: Event) => void;
-    onmessage?: (event: MessageEvent) => void;
+    onopen: ((event: Event) => any) | null;
+    onerror: ((event: ErrorEvent) => any) | null;
+    onmessage: ((event: MessageEvent) => any) | null;
     resolve?: (value: unknown) => void;
     reject?: () => void;
 
@@ -11,6 +14,9 @@ class StdStream {
         this.stdin = "";
         this.stdout = "";
         this.stderr = "";
+        this.onopen = null;
+        this.onerror = null;
+        this.onmessage = null;
     }
 
     send(str: string) {

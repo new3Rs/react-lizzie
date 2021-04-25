@@ -1,7 +1,10 @@
 /**
  * @preserve Copyright 2019 ICHIKAWA, Yuji (New 3 Rs)
  */
-
+ import assert from "assert";
+ import Socket from "./Socket";
+ import StdStream from "./StdStream";
+ 
 export interface LzInfo {
     move: string,
     visits: number,
@@ -29,7 +32,7 @@ interface GtpInputElement extends HTMLFormElement {
 }
 
 class Gtp {
-    socket!: WebSocket | any; // any means StdStream
+    socket!: Socket;
     buffer: string;
     lastCommand?: string;
     resolve?: (line: string) => void;
@@ -63,8 +66,13 @@ class Gtp {
                 error(err);
             }
         }
-        if (!(this.socket instanceof WebSocket)) {
-            setTimeout(() => { this.socket.onopen(new CustomEvent("open")); }, 0);
+        if (this.socket instanceof StdStream) {
+            setTimeout(() => {
+                assert(this.socket instanceof StdStream);
+                if (this.socket.onopen) {
+                    this.socket.onopen(new CustomEvent("open"));
+                }
+            }, 0);
         }
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {

@@ -41,7 +41,7 @@ class GoAI extends React.Component<Props, State> {
     byoyomi: number;
     gtp!: Gtp;
     constructor(props: Props) {
-        super(props)
+        super(props);
         this.size = 19;
         this.byoyomi = 3;
         this.state = {
@@ -52,8 +52,8 @@ class GoAI extends React.Component<Props, State> {
             history: [],
             candidates: [],
             ownership: []
-        }
-        document.getElementById("sgf")!.addEventListener("change", async (event) => {
+        };
+        document.getElementById("sgf")!.addEventListener("change", (event) => {
             if (event == null) {
                 return;
             }
