@@ -3,11 +3,12 @@
  */
 
 import React from "react";
+import Socket from "./Socket";
 import StdStream from "./StdStream";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
 import GoPosition, { BLACK, xy2coord, GoMove } from "./GoPosition";
-import Gtp, { KataInfo } from "./Gtp";
+import GtpController, { KataInfo } from "./GtpController";
 
 function appendScript(URL: string, onload: (() => void) | null = null) {
 	var el = document.createElement('script');
@@ -39,7 +40,7 @@ interface State {
 class GoAI extends React.Component<Props, State> {
     size: number;
     byoyomi: number;
-    gtp!: Gtp;
+    gtp!: GtpController;
     constructor(props: Props) {
         super(props);
         this.size = 19;
@@ -132,7 +133,8 @@ class GoAI extends React.Component<Props, State> {
 
     start(url: string) {
         try {
-            this.gtp = new Gtp(url, () => {
+            const socket = url === "katago" ? window.Module["input"] : new WebSocket(url);
+            this.gtp = new GtpController(socket, () => {
                 updateMessage("");
                 this.kataAnalyze();
             }, (err) => {

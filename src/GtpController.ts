@@ -27,11 +27,7 @@ export interface KataInfos {
     ownership: number[],
 }
 
-interface GtpInputElement extends HTMLFormElement {
-    command: HTMLInputElement
-}
-
-class Gtp {
+class GtpController {
     socket!: Socket;
     buffer: string;
     lastCommand?: string;
@@ -40,13 +36,9 @@ class Gtp {
     LzAnalyzeHandler?: (infos: LzInfo[]) => void;
     kataAnalyzeHandler?: (infos: KataInfos) => void;
 
-    constructor(url: string, callback?: () => void, error?: (err: ErrorEvent) => void) {
+    constructor(socket: Socket, callback?: () => void, error?: (err: ErrorEvent) => void) {
         this.buffer = "";
-        if (url === "katago") {
-            this.socket = window.Module["input"];
-        } else {
-            this.socket = new WebSocket(url);
-        }
+        this.socket = socket;
         this.socket.onopen = (event: Event) => {
             this.socket.onmessage = (event: MessageEvent) => {
                 this.buffer += event.data;
@@ -212,4 +204,4 @@ class Gtp {
     }
 }
 
-export default Gtp;
+export default GtpController;

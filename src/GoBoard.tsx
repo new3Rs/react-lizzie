@@ -5,7 +5,7 @@
 import React, { CSSProperties } from "react";
 import "./GoBoard.css";
 import { sprintf } from "sprintf-js";
-import { KataInfo } from "./Gtp";
+import { KataInfo } from "./GtpController";
 import GoPosition, { BLACK, WHITE, opponentOf, coord2xy, xy2coord } from "./GoPosition";
 
 type RGB = {
