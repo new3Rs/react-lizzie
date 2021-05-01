@@ -3,7 +3,7 @@
  */
 
  .go-board {
-    position: absolute;
+    position: relative;
     background-image: url(./images/wood1.jpg);
     background-repeat: repeat;
 }

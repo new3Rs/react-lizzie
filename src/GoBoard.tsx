@@ -357,7 +357,6 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
     }
 
     drawGrid() {
-        console.log("pass");
         const canvas = this.canvasRef.current!;
         const ctx = canvas.getContext("2d")!;
         const intervalX = 1000 / this.props.w;

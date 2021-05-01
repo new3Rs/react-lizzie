@@ -168,6 +168,7 @@ class GoAI extends React.Component<Props, State> {
                         }
                     }}
                 />
+                <div style={{clear: "left"}}></div>
             </div>
         );
     }
