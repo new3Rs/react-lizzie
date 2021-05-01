@@ -3,6 +3,7 @@
  */
 
 import React, { CSSProperties } from "react";
+import { isTouchDevice } from "./utilities";
 import "./GoBoard.css";
 import { sprintf } from "sprintf-js";
 import { KataInfo } from "./GtpController";
@@ -287,7 +288,7 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
 
     constructor(props: GoBoardProps) {
         super(props);
-        this.state = {}
+        this.state = { candidate: undefined };
         this.canvasRef = React.createRef();
     }
 
@@ -340,14 +341,15 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
         };
         return (
             <div className="go-board" style={goBoardStyle}>
-            <div className="go-board-content">
-                <canvas ref={this.canvasRef} width="1000" height="1000" className="go-board-grid" onLoad={this.drawGrid}></canvas>
-                {range(this.props.h, 1).map(y => (
-                    <div className="go-row" key={y}>
-                        {range(1, this.props.w).map(x => this.renderIntersection(intersections, x, y))}
-                    </div>
-                ))}
-            </div>
+                <div className="go-board-content">
+                    <canvas ref={this.canvasRef} width="1000" height="1000" className="go-board-grid" onLoad={this.drawGrid}></canvas>
+                    {range(this.props.h, 1).map(y => (
+                        <div className="go-row" key={y}>
+                            {range(1, this.props.w).map(x => this.renderIntersection(intersections, x, y))}
+                        </div>
+                    ))}
+                </div>
+                <div>{this.state.candidate}</div>
             </div>
         );
     }
@@ -414,6 +416,8 @@ interface GoIntersectionState {
 }
 
 class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersectionState> {
+    touchStart?: number;
+
     render() {
         let className = "go-intersection";
         switch (this.props.stone) {
@@ -432,8 +436,17 @@ class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersec
             borderWidth: this.props.borderWidth,
             borderColor: this.props.borderColor,
         }
-        return (
-            <div className={className} style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} onTouchEnd={() => { this.onTouchEnd(); }}>
+
+        return isTouchDevice() ? (
+            <div className={className} style={intersectionStyle} onTouchStart={() => { this.onTouchStart(); }} onTouchEnd={() => { this.onTouchEnd(); }}>
+                <div className="go-intersection-number">{this.props.number}</div>
+                <div className="go-intersection-info" style={infoStyle}>
+                    <div>{this.props.winrate}</div>
+                    <div>{typeof this.props.playouts === "number" ? shortStringOfInteger(this.props.playouts) : this.props.playouts}</div>
+                </div>
+            </div>
+        ) :  (
+            <div className={className} style={intersectionStyle} onClick={this.props.onClick} onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave}>
                 <div className="go-intersection-number">{this.props.number}</div>
                 <div className="go-intersection-info" style={infoStyle}>
                     <div>{this.props.winrate}</div>
@@ -443,8 +456,22 @@ class GoIntersection extends React.PureComponent<GoIntersectionProps, GoIntersec
         );
     }
 
+    onTouchStart() {
+        this.touchStart = Date.now();
+        this.props.onMouseEnter();
+    }
+
     onTouchEnd() {
-        setInterval(this.props.onMouseLeave, 1000);
+        if (this.touchStart == null) {
+            return;
+        }
+        if (Date.now() - this.touchStart < 500) {
+            this.props.onMouseLeave();
+            this.props.onClick();
+        } else {
+            setTimeout(this.props.onMouseLeave, 1000);
+        }
+        this.touchStart = undefined;
     }
 }
 

@@ -3,6 +3,7 @@
  */
 
 import React from "react";
+import { updateMessage } from "./utilities";
 import StdStream from "./StdStream";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
@@ -14,12 +15,6 @@ function appendScript(URL: string, onload: (() => void) | null = null) {
     el.src = URL;
     el.onload = onload;
 	document.body.appendChild(el);
-}
-
-function updateMessage(str: string, color: string = "black") {
-    const dom = document.getElementById("message")!;
-    dom.innerText = str;
-    dom.style.color = color;
 }
 
 interface Props {
