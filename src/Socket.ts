@@ -1,4 +1,6 @@
-// WebSocketまたはStdStream
+/**
+ * WebSocketまたはStdStreamを表すinterface
+ */
 interface Socket {
     onopen: ((event: Event) => any) | null;
     onerror: ((event: ErrorEvent) => any) | null;

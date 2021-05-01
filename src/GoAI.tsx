@@ -3,7 +3,6 @@
  */
 
 import React from "react";
-import Socket from "./Socket";
 import StdStream from "./StdStream";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
@@ -25,6 +24,7 @@ function updateMessage(str: string, color: string = "black") {
 
 interface Props {
     gtp: string;
+    size: number;
 }
 
 interface State {
@@ -38,18 +38,16 @@ interface State {
 }
 
 class GoAI extends React.Component<Props, State> {
-    size: number;
     byoyomi: number;
     gtp!: GtpController;
     constructor(props: Props) {
         super(props);
-        this.size = 19;
         this.byoyomi = 3;
         this.state = {
             percent: 50,
             black: "",
             white: "",
-            model: new GoPosition(this.size, 0),
+            model: new GoPosition(this.props.size, 0),
             history: [],
             candidates: [],
             ownership: []
@@ -104,9 +102,9 @@ class GoAI extends React.Component<Props, State> {
                 if (!("arguments" in window.Module)) {
                     window.Module["arguments"] = [];
                 }
-                window.Module["preRun"].push(function() {
+                window.Module["preRun"].push(() => {
                     const params = new URL(window.location.toString()).searchParams;
-                    const cfgFile = params.get("config") || "gtp_auto.cfg";
+                    const cfgFile = params.get("config") || `gtp_${this.props.size}x${this.props.size}.cfg`;
                     FS.createPreloadedFile(
                         FS.cwd(),
                         cfgFile,
@@ -116,7 +114,7 @@ class GoAI extends React.Component<Props, State> {
                     );
                     window.Module["arguments"].push(params.get("subcommand") || "gtp");
                     window.Module["arguments"].push("-model");
-                    window.Module["arguments"].push(params.get("model") || "web_model");
+                    window.Module["arguments"].push(params.get("model") || `web_model_${this.props.size}x${this.props.size}`);
                     window.Module["arguments"].push("-config");
                     window.Module["arguments"].push(cfgFile);
                 
@@ -158,8 +156,8 @@ class GoAI extends React.Component<Props, State> {
                 <GoBoard
                     width={size}
                     height={size}
-                    w={this.size}
-                    h={this.size}
+                    w={this.props.size}
+                    h={this.props.size}
                     candidates={this.state.candidates}
                     model={this.state.model}
                     onClickIntersection={(x, y) => {

@@ -283,9 +283,12 @@ interface GoBoardState {
 }
 
 class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+
     constructor(props: GoBoardProps) {
         super(props);
         this.state = {}
+        this.canvasRef = React.createRef();
     }
 
     index(x: number, y: number): number {
@@ -338,6 +341,7 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
         return (
             <div className="go-board" style={goBoardStyle}>
             <div className="go-board-content">
+                <canvas ref={this.canvasRef} width="1000" height="1000" className="go-board-grid" onLoad={this.drawGrid}></canvas>
                 {range(this.props.h, 1).map(y => (
                     <div className="go-row" key={y}>
                         {range(1, this.props.w).map(x => this.renderIntersection(intersections, x, y))}
@@ -346,6 +350,36 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
             </div>
             </div>
         );
+    }
+
+    componentDidMount() {
+        this.drawGrid();
+    }
+
+    drawGrid() {
+        console.log("pass");
+        const canvas = this.canvasRef.current!;
+        const ctx = canvas.getContext("2d")!;
+        const intervalX = 1000 / this.props.w;
+        const intervalY = 1000 / this.props.h;
+        const offsetX = intervalX / 2;
+        const offsetY = intervalY / 2;
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000000";
+        for (let y = 0; y < this.props.h; y++) {
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY + y * intervalY);
+            ctx.lineTo(1000 - offsetX, offsetY + y * intervalY);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        for (let x = 0; x < this.props.w; x++) {
+            ctx.beginPath();
+            ctx.moveTo(offsetX + x * intervalX, offsetY);
+            ctx.lineTo(offsetX + x * intervalX, 1000 - offsetY);
+            ctx.closePath();
+            ctx.stroke();
+        }
     }
 
     onMouseEnterIntersection(x: number, y: number) {

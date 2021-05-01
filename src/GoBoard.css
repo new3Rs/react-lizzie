@@ -3,8 +3,9 @@
  */
 
  .go-board {
-    background-image: url(./images/goban.jpg);
-    background-size: contain;
+    position: absolute;
+    background-image: url(./images/wood1.jpg);
+    background-repeat: repeat;
 }
 
 .go-board-content {
@@ -14,6 +15,12 @@
     height: 97%;
     padding: 1.5%;
     user-select: none;
+}
+
+.go-board-grid {
+    position: absolute;
+    width: 97%;
+    height: 97%;
 }
 
 .go-row {
