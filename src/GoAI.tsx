@@ -47,6 +47,7 @@ class GoAI extends React.Component<Props, State> {
             candidates: [],
             ownership: []
         };
+        updateMessage("ローディング中...少々お待ちください");
         document.getElementById("sgf")!.addEventListener("change", (event) => {
             if (event == null) {
                 return;
