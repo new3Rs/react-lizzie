@@ -7,7 +7,7 @@ import jssgf from "jssgf";
 export const EMPTY = 0;
 export const BLACK = 1;
 export const WHITE = 2;
-const PASS = -1;
+export const PASS = -1;
 
 type GoColor = 1 | 2; // BLACK, WHITE
 type GoIntersectionState = 0 | 1 | 2; // EMPTY, BLACK, WHITE
@@ -78,6 +78,7 @@ export interface GoMove {
 class GoPosition {
     BOARD_SIZE: number;
     BOARD_SIZE2: number;
+    moveNumber: number;
     turn: GoColor;
     state: { [name in GoColor]: Float32Array };
     ko?: number;
@@ -121,6 +122,7 @@ class GoPosition {
     constructor(boardSize: number, handicap: number = 0) {
         this.BOARD_SIZE = boardSize;
         this.BOARD_SIZE2 = boardSize * boardSize;
+        this.moveNumber = 0;
         this.state = {
             [BLACK]: new Float32Array(this.BOARD_SIZE2),
             [WHITE]: new Float32Array(this.BOARD_SIZE2)
@@ -147,6 +149,10 @@ class GoPosition {
         return [s.charCodeAt(0) - offset, this.BOARD_SIZE - (s.charCodeAt(1) - offset) + 1];
     }
     
+    xyToMove(x: number, y: number): string {
+        const offset = "a".charCodeAt(0) - 1;
+        return String.fromCharCode(x + offset) + String.fromCharCode(this.BOARD_SIZE - y + 1 + offset);
+    }
     
     opponent() {
         return opponentOf(this.turn);
@@ -246,6 +252,7 @@ class GoPosition {
         if (point === PASS) {
             this.putRecent8(point);
             this.switchTurn();
+            this.moveNumber++;
             return {
                 turn: this.turn,
                 point,
@@ -275,12 +282,14 @@ class GoPosition {
         this.putRecent8(point);
         const turn = this.turn;
         this.switchTurn();
+        this.moveNumber++;
         return { turn, point, ko, captives, string };
     }
 
     undoPlay(move: GoMove) {
         this.ko = move.ko;
         this.switchTurn();
+        this.moveNumber--;
         if (move.point === PASS) {
             return;
         }

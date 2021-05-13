@@ -20,9 +20,9 @@ const App = () => {
   function closeModal(){
     setIsOpen(false);
   }
-  const [size,setSize] = React.useState(19);
+  const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[19])");
   function changeSize(event: React.ChangeEvent<HTMLInputElement>) {
-    setSize(parseInt(event.currentTarget.value));
+    setSgf(`(;FF[4]GM[1]SZ[${event.currentTarget.value}])`);
   }
 
   if (window.location.search.startsWith("?")) {
@@ -34,6 +34,20 @@ const App = () => {
       }
     }
   }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    if (target.files == null || target.files.length === 0) {
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (event: Event) => {
+        const target = event.target as any;
+        setSgf(target.result);
+    };
+    reader.readAsText(target.files[0]);
+  };
+
   return modalIsOpen ? (
     <Modal isOpen={modalIsOpen} style={customStyles}>
       <h2>ウェブ版囲碁の師匠</h2>
@@ -44,10 +58,11 @@ const App = () => {
         <label htmlFor="size1">13</label>
         <input type="radio" name="size" id="size3" value="19" onChange={changeSize} />
         <label htmlFor="size1">19</label>
-        <button type="button" onClick={closeModal}>スタート！</button>
+        <p><input type="file" name="sgf" onChange={handleChange} /></p>
+        <p><button type="button" onClick={closeModal}>スタート！</button></p>
       </form>
     </Modal>
-  ) :       <GoAI gtp={gtp} size={size} />
+  ) : <GoAI gtp={gtp} sgf={sgf} />
 
 };
 

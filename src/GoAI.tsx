@@ -3,12 +3,15 @@
  */
 
 import React from "react";
+import jssgf from "jssgf";
 import { updateMessage } from "./utilities";
 import StdStream from "./StdStream";
 import SituationBar from "./SituationBar";
 import GoBoard from "./GoBoard";
-import GoPosition, { BLACK, xy2coord, GoMove } from "./GoPosition";
+import NavigationBar from "./NavigationBar";
+import GoPosition, { PASS, BLACK, xy2coord, GoMove } from "./GoPosition";
 import GtpController, { KataInfo } from "./GtpController";
+import SGFCursor from "./SGFCursor";
 
 function appendScript(URL: string, onload: (() => void) | null = null) {
 	var el = document.createElement('script');
@@ -19,7 +22,7 @@ function appendScript(URL: string, onload: (() => void) | null = null) {
 
 interface Props {
     gtp: string;
-    size: number;
+    sgf: string;
 }
 
 interface State {
@@ -35,43 +38,26 @@ interface State {
 class GoAI extends React.Component<Props, State> {
     byoyomi: number;
     gtp!: GtpController;
+    size: number;
+    cursor: SGFCursor;
+
     constructor(props: Props) {
         super(props);
         this.byoyomi = 3;
+        const collection = jssgf.fastParse(this.props.sgf);
+        this.cursor = new SGFCursor(collection);
+        this.size = parseInt(collection[0]["SZ"][0]);
+        const handicap = collection[0]["HA"] ? parseInt(collection[0]["HA"][0]) : 0;
         this.state = {
             percent: 50,
             black: "",
             white: "",
-            model: new GoPosition(this.props.size, 0),
+            model: new GoPosition(this.size, handicap),
             history: [],
             candidates: [],
             ownership: []
         };
         updateMessage("ローディング中...少々お待ちください");
-        document.getElementById("sgf")!.addEventListener("change", (event) => {
-            if (event == null) {
-                return;
-            }
-            if (event.currentTarget == null) {
-                return;
-            }
-            const target = event.currentTarget as any;
-            if (target.files.length === 0) {
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = async (event: Event) => {
-                const target = event.target as any;
-                const sgf = target.result;
-                const filename = "tmp.sgf";
-                FS.writeFile(filename, sgf);
-                await this.gtp.command(`loadsgf ${filename}`);
-                const model = GoPosition.fromSgf(sgf);
-                this.setState({ model: model });
-                this.kataAnalyze();
-            };
-            reader.readAsText(target.files[0]);
-        }, false);
         if (this.props.gtp === "katago") {
             if (typeof SharedArrayBuffer === "undefined") {
                 updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Trying to connect localhost websocket server...", "yellow");
@@ -100,7 +86,7 @@ class GoAI extends React.Component<Props, State> {
                 }
                 window.Module["preRun"].push(() => {
                     const params = new URL(window.location.toString()).searchParams;
-                    const cfgFile = params.get("config") || `gtp_${this.props.size}x${this.props.size}.cfg`;
+                    const cfgFile = params.get("config") || `gtp_${this.size}x${this.size}.cfg`;
                     FS.createPreloadedFile(
                         FS.cwd(),
                         cfgFile,
@@ -110,7 +96,7 @@ class GoAI extends React.Component<Props, State> {
                     );
                     window.Module["arguments"].push(params.get("subcommand") || "gtp");
                     window.Module["arguments"].push("-model");
-                    window.Module["arguments"].push(params.get("model") || `web_model_${this.props.size}x${this.props.size}`);
+                    window.Module["arguments"].push(params.get("model") || `web_model_${this.size}x${this.size}`);
                     window.Module["arguments"].push("-config");
                     window.Module["arguments"].push(cfgFile);
                 
@@ -152,8 +138,8 @@ class GoAI extends React.Component<Props, State> {
                 <GoBoard
                     width={size}
                     height={size}
-                    w={this.props.size}
-                    h={this.props.size}
+                    w={this.size}
+                    h={this.size}
                     candidates={this.state.candidates}
                     model={this.state.model}
                     onClickIntersection={(x, y) => {
@@ -163,6 +149,13 @@ class GoAI extends React.Component<Props, State> {
                             this.play(x, y);
                         }
                     }}
+                />
+                <NavigationBar
+                    moveNumber={this.state.model.moveNumber}
+                    rewind={() => { this.rewind(); }}
+                    back={() => { this.back(); }}
+                    forward={() => { this.forward(); }}
+                    fastForward={() => { this.fastForward(); }}
                 />
                 <div style={{clear: "left"}}></div>
             </div>
@@ -211,6 +204,11 @@ class GoAI extends React.Component<Props, State> {
     }
 
     async play(x: number, y: number) {
+        this.cursor.play(this.state.model.turn === BLACK ? "B" : "W", this.state.model.xyToMove(x, y));
+        await this._play(x, y);
+    }
+
+    async _play(x: number, y: number) {
         try {
             const turn = this.state.model.turn;
             this.setState((state, props) => {
@@ -233,6 +231,15 @@ class GoAI extends React.Component<Props, State> {
     }
 
     async undo() {
+        if (this.cursor.hasNext()) {
+            this.cursor.back();
+        } else {
+            this.cursor.removeCurrent();
+        }
+        await this._undo();
+    }
+
+    async _undo() {
         try {
             this.setState((state, props) => {
                 const move = state.history.pop();
@@ -250,6 +257,46 @@ class GoAI extends React.Component<Props, State> {
             this.kataAnalyze();
         } catch (e) {
             console.log(e);
+        }
+    }
+
+    async rewind() {
+        for (let i = 0; i < 10; i++) {
+            await this.back();
+        }
+    }
+
+    async back() {
+        const node = this.cursor.back();
+        if (node == null) {
+            return;
+        }
+        await this._undo();
+    }
+
+    async forward() {
+        while (true) {
+            const node = this.cursor.forward();
+            if (node == null) {
+                return;
+            }
+            const move = node["B"] || node["W"];
+            if (move == null) {
+                continue;
+            } else {
+                const xy = this.state.model.moveToXy(move[0]);
+                if (xy === -1) {
+                    await this.state.model.play(PASS);
+                } else {
+                    await this._play(xy[0], xy[1]);
+                }
+                break;
+            }
+        }
+    }
+    async fastForward() {
+        for (let i = 0; i < 10; i++) {
+            await this.forward();
         }
     }
 }
