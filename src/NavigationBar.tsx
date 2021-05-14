@@ -3,6 +3,7 @@ import "./NavigationBar.css";
 
 type Props = {
     width: string;
+    disabled: boolean;
     moveNumber: number;
     rewind: () => void;
     back: () => void;
@@ -14,12 +15,12 @@ type Props = {
 const NavigationBar: React.FC<Props> = (props) => {
     return (
         <div style={{width: props.width }} className="navigation-bar">
-            <button type="button" onClick={props.rewind}>◀︎◀︎</button>
-            <button type="button" onClick={props.back}>◀︎</button>
-            <button type="button" onClick={props.pause}>❚❚</button>
+            <button type="button" onClick={props.rewind} disabled={props.disabled}>◀︎◀︎</button>
+            <button type="button" onClick={props.back} disabled={props.disabled}>◀︎</button>
+            <button type="button" onClick={props.pause} disabled={props.disabled}>❚❚</button>
             <span>{props.moveNumber}</span>
-            <button type="button" onClick={props.forward}>▶︎</button>
-            <button type="button" onClick={props.fastForward}>▶︎▶︎</button>
+            <button type="button" onClick={props.forward} disabled={props.disabled}>▶︎</button>
+            <button type="button" onClick={props.fastForward} disabled={props.disabled}>▶︎▶︎</button>
         </div>
     )
 } 

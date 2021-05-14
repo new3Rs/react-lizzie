@@ -26,6 +26,7 @@ interface Props {
 }
 
 interface State {
+    disabled: boolean;
     percent: number;
     black: string;
     white: string;
@@ -48,6 +49,7 @@ class GoAI extends React.Component<Props, State> {
         this.cursor = new SGFCursor(collection);
         this.size = parseInt(collection[0]["SZ"]);
         this.state = {
+            disabled: true,
             percent: 50,
             black: "",
             white: "",
@@ -118,6 +120,7 @@ class GoAI extends React.Component<Props, State> {
                 FS.writeFile(filename, this.props.sgf);
                 await this.gtp.loadsgf(filename, 0);
                 updateMessage("");
+                this.setState({ disabled: false });
                 this.kataAnalyze();
             }, (err) => {
                 updateMessage(`failed to connect ${(err?.target as WebSocket).url}`, "red");
@@ -145,6 +148,9 @@ class GoAI extends React.Component<Props, State> {
                     candidates={this.state.candidates}
                     model={this.state.model}
                     onClickIntersection={(x, y) => {
+                        if (this.state.disabled) {
+                            return;
+                        }
                         if (this.state.history[this.state.history.length - 1]?.point === this.state.model.xyToPoint(x, y)) {
                             this.undo();
                         } else {
@@ -154,6 +160,7 @@ class GoAI extends React.Component<Props, State> {
                 />
                 <NavigationBar
                     width={size}
+                    disabled={this.state.disabled}
                     moveNumber={this.state.model.moveNumber}
                     rewind={() => { this.rewind(); }}
                     back={() => { this.back(); }}
