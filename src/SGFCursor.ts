@@ -59,7 +59,7 @@ class SGFCursor {
         } else {
             this.history.push(this.current);
             const node: { [name: string]: any } = { _children: [] };
-            node[color] = [value];
+            node[color] = value;
             this.current._children.push(node);
             this.current = node;
         }

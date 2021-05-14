@@ -298,6 +298,7 @@ class GoAI extends React.Component<Props, State> {
             if (move == null) {
                 continue;
             } else {
+                console.log(move);
                 const xy = this.state.model.moveToXy(move);
                 if (xy === -1) {
                     await this.state.model.play(PASS);
