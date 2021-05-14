@@ -152,9 +152,11 @@ class GoAI extends React.Component<Props, State> {
                     }}
                 />
                 <NavigationBar
+                    width={size}
                     moveNumber={this.state.model.moveNumber}
                     rewind={() => { this.rewind(); }}
                     back={() => { this.back(); }}
+                    pause={() => { this.pause(); }}
                     forward={() => { this.forward(); }}
                     fastForward={() => { this.fastForward(); }}
                 />
@@ -312,6 +314,10 @@ class GoAI extends React.Component<Props, State> {
             await this._forward();
         }
         this.kataAnalyze();
+    }
+
+    async pause() {
+        await this.gtp.stop();
     }
 }
 

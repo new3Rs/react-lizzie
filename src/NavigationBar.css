@@ -1,0 +1,18 @@
+.navigation-bar {
+    text-align: center;
+    font-size: 44pt;
+    vertical-align: middle;
+}
+
+.navigation-bar > button {
+    min-width: 88px;
+    line-height: 44px;
+    font-size: 30px;
+}
+
+.navigation-bar > span {
+    display: inline-block;
+    min-width: 88px;
+    line-height: 44px;
+    font-size: 30px;
+}

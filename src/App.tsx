@@ -20,7 +20,7 @@ const App = () => {
   function closeModal(){
     setIsOpen(false);
   }
-  const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[19])");
+  const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[9])");
   function changeSize(event: React.ChangeEvent<HTMLInputElement>) {
     setSgf(`(;FF[4]GM[1]SZ[${event.currentTarget.value}])`);
   }
@@ -52,7 +52,7 @@ const App = () => {
     <Modal isOpen={modalIsOpen} style={customStyles}>
       <h2>ウェブ版囲碁の師匠</h2>
       <form action="">
-        <input type="radio" name="size" id="size1" value="9" onChange={changeSize} />
+        <input type="radio" name="size" id="size1" value="9" checked onChange={changeSize} />
         <label htmlFor="size1">9</label>
         <input type="radio" name="size" id="size2" value="13" onChange={changeSize} />
         <label htmlFor="size1">13</label>

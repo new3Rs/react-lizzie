@@ -94,6 +94,10 @@ class GtpController {
         return await this.command(`play ${turn} ${coord}`);
     }
 
+    async stop(): Promise<any> {
+        return await this.command("stop");
+    }
+
     async undo(): Promise<any> {
         return await this.command("undo");
     }
