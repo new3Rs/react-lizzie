@@ -47,12 +47,11 @@ class GoAI extends React.Component<Props, State> {
         const collection = jssgf.fastParse(this.props.sgf);
         this.cursor = new SGFCursor(collection);
         this.size = parseInt(collection[0]["SZ"]);
-        const handicap = collection[0]["HA"] ? parseInt(collection[0]["HA"]) : 0;
         this.state = {
             percent: 50,
             black: "",
             white: "",
-            model: new GoPosition(this.size, handicap),
+            model: GoPosition.fromSgf(this.props.sgf, 0),
             history: [],
             candidates: [],
             ownership: []
@@ -87,7 +86,6 @@ class GoAI extends React.Component<Props, State> {
                 window.Module["preRun"].push(() => {
                     const params = new URL(window.location.toString()).searchParams;
                     const cfgFile = params.get("config") || `gtp_${this.size}x${this.size}.cfg`;
-                    console.log(cfgFile);
                     FS.createPreloadedFile(
                         FS.cwd(),
                         cfgFile,
@@ -115,7 +113,10 @@ class GoAI extends React.Component<Props, State> {
     start(url: string) {
         try {
             const socket = url === "katago" ? window.Module["input"] : new WebSocket(url);
-            this.gtp = new GtpController(socket, () => {
+            this.gtp = new GtpController(socket, async () => {
+                const filename = "tmp.sgf";
+                FS.writeFile(filename, this.props.sgf);
+                await this.gtp.loadsgf(filename, 0);
                 updateMessage("");
                 this.kataAnalyze();
             }, (err) => {

@@ -87,7 +87,7 @@ class GoPosition {
     marker2: Marker;
 
     static copy(source: GoPosition) {
-        const result = new GoPosition(source.BOARD_SIZE, 0);
+        const result = new GoPosition(source.BOARD_SIZE);
         result.state[BLACK].set(source.state[BLACK]);
         result.state[WHITE].set(source.state[WHITE]);
         result.turn = source.turn;
@@ -95,11 +95,35 @@ class GoPosition {
         return result;
     }
 
-    static fromSgf(sgf: string) {
+    static fromSgf(sgf: string, moveNumber: number = Infinity) {
         const [root] = jssgf.fastParse(sgf);
         const p = new this(parseInt(root.SZ || "19"));
+        if (root["AB"]) {
+            const list = Array.isArray(root["AB"]) ? root["AB"] : [root["AB"]];
+            for (const move of list) {
+                const xy = p.moveToXy(move);
+                if (xy !== -1) {
+                    p.setState(p.xyToPoint(xy[0], xy[1]), BLACK);
+                }
+            }
+            p.turn = WHITE;
+        }
+        if (root["AW"]) {
+            const list = Array.isArray(root["AW"]) ? root["AW"] : [root["AW"]];
+            for (const move of list) {
+                const xy = p.moveToXy(move);
+                if (xy !== -1) {
+                    p.setState(p.xyToPoint(xy[0], xy[1]), WHITE);
+                }
+            }
+        }
+        if (root["PL"]) {
+            p.turn = root["PL"] === "B" ? BLACK : WHITE;
+        }
+
         let node = root;
-        while (node._children.length > 0) {
+        let mn = 0;
+        while (node._children.length > 0 && mn < moveNumber) {
             node = node._children[0];
             let move;
             if (node.B != null) {
@@ -115,11 +139,12 @@ class GoPosition {
             } else {
                 p.play(p.xyToPoint.apply(p, xy));
             }
+            mn++;
         }
         return p
     }
 
-    constructor(boardSize: number, handicap: number = 0) {
+    constructor(boardSize: number) {
         this.BOARD_SIZE = boardSize;
         this.BOARD_SIZE2 = boardSize * boardSize;
         this.moveNumber = 0;
@@ -127,17 +152,10 @@ class GoPosition {
             [BLACK]: new Float32Array(this.BOARD_SIZE2),
             [WHITE]: new Float32Array(this.BOARD_SIZE2)
         }
+        this.turn = BLACK;
         this.recent8 = [];
         this.marker1 = new Marker(boardSize);
         this.marker2 = new Marker(boardSize);
-        if (handicap > 1) {
-            for (const xy of HANDICAPS[handicap]) {
-                this.setState(this.xyToPoint(xy[0], xy[1]), BLACK);
-            }
-            this.turn = WHITE;
-        } else {
-            this.turn = BLACK;
-        }
         this.ko = undefined;
     }
 

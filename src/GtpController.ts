@@ -90,6 +90,14 @@ class GtpController {
         });
     }
 
+    async loadsgf(filename: string, moveNumber: number = Infinity): Promise<any> {
+        let command = `loadsgf ${filename}`;
+        if (isFinite(moveNumber)) {
+            command += ` ${moveNumber}`;
+        }
+        return await this.command(command);
+    }
+
     async play(turn: string, coord: string): Promise<any> {
         return await this.command(`play ${turn} ${coord}`);
     }
