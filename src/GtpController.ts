@@ -77,6 +77,7 @@ class GtpController {
 
     _command(str: string) {
         this.lastCommand = str;
+        console.log(str);
         this.socket.send(str + "\n");
     }
 
@@ -108,6 +109,7 @@ class GtpController {
     }
 
     process(line: string) {
+        console.log(line);
         if (line.startsWith("=")) {
             if (this.resolve) {
                 this.resolve(line);

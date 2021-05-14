@@ -207,6 +207,7 @@ class GoAI extends React.Component<Props, State> {
     async play(x: number, y: number) {
         this.cursor.play(this.state.model.turn === BLACK ? "B" : "W", this.state.model.xyToMove(x, y));
         await this._play(x, y);
+        this.kataAnalyze();
     }
 
     async _play(x: number, y: number) {
@@ -225,7 +226,6 @@ class GoAI extends React.Component<Props, State> {
                 };
             });
             await this.gtp.play(turn === BLACK ? "black" : "white", xy2coord(x, y));
-            this.kataAnalyze();
         } catch (e) {
             console.log(e);
         }
@@ -238,6 +238,7 @@ class GoAI extends React.Component<Props, State> {
             this.cursor.removeCurrent();
         }
         await this._undo();
+        this.kataAnalyze();
     }
 
     async _undo() {
@@ -255,7 +256,6 @@ class GoAI extends React.Component<Props, State> {
                 };
             });
             await this.gtp.undo();
-            this.kataAnalyze();
         } catch (e) {
             console.log(e);
         }
@@ -263,11 +263,17 @@ class GoAI extends React.Component<Props, State> {
 
     async rewind() {
         for (let i = 0; i < 10; i++) {
-            await this.back();
+            await this._back();
         }
+        this.kataAnalyze();
     }
 
     async back() {
+        await this._back();
+        this.kataAnalyze();
+    }
+
+    async _back() {
         const node = this.cursor.back();
         if (node == null) {
             return;
@@ -276,6 +282,11 @@ class GoAI extends React.Component<Props, State> {
     }
 
     async forward() {
+        await this._forward();
+        this.kataAnalyze();
+    }
+
+    async _forward() {
         while (true) {
             const node = this.cursor.forward();
             if (node == null) {
@@ -295,10 +306,12 @@ class GoAI extends React.Component<Props, State> {
             }
         }
     }
+
     async fastForward() {
         for (let i = 0; i < 10; i++) {
-            await this.forward();
+            await this._forward();
         }
+        this.kataAnalyze();
     }
 }
 
