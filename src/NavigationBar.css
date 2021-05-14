@@ -5,14 +5,14 @@
 }
 
 .navigation-bar > button {
-    min-width: 88px;
+    min-width: 15vw;
     line-height: 44px;
-    font-size: 30px;
+    font-size: 5vw;
 }
 
 .navigation-bar > span {
     display: inline-block;
-    min-width: 88px;
+    min-width: 15vw;
     line-height: 44px;
-    font-size: 30px;
+    font-size: 5vw;
 }
