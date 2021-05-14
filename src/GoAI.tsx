@@ -46,8 +46,8 @@ class GoAI extends React.Component<Props, State> {
         this.byoyomi = 3;
         const collection = jssgf.fastParse(this.props.sgf);
         this.cursor = new SGFCursor(collection);
-        this.size = parseInt(collection[0]["SZ"][0]);
-        const handicap = collection[0]["HA"] ? parseInt(collection[0]["HA"][0]) : 0;
+        this.size = parseInt(collection[0]["SZ"]);
+        const handicap = collection[0]["HA"] ? parseInt(collection[0]["HA"]) : 0;
         this.state = {
             percent: 50,
             black: "",
@@ -87,6 +87,7 @@ class GoAI extends React.Component<Props, State> {
                 window.Module["preRun"].push(() => {
                     const params = new URL(window.location.toString()).searchParams;
                     const cfgFile = params.get("config") || `gtp_${this.size}x${this.size}.cfg`;
+                    console.log(cfgFile);
                     FS.createPreloadedFile(
                         FS.cwd(),
                         cfgFile,
@@ -284,7 +285,7 @@ class GoAI extends React.Component<Props, State> {
             if (move == null) {
                 continue;
             } else {
-                const xy = this.state.model.moveToXy(move[0]);
+                const xy = this.state.model.moveToXy(move);
                 if (xy === -1) {
                     await this.state.model.play(PASS);
                 } else {
