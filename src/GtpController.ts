@@ -45,10 +45,13 @@ class GtpController {
                 const lines = this.buffer.split("\n");
                 this.buffer = lines.pop()!;
                 for (const line of lines) {
+                    if (this.socket instanceof WebSocket && line.startsWith("GTP ready") && callback) {
+                        callback();
+                    }
                     this.process(line);
                 }
             };
-            if (callback) {
+            if (this.socket instanceof StdStream && callback) {
                 callback();
             }
         }
@@ -90,6 +93,10 @@ class GtpController {
         });
     }
 
+    async name(): Promise<any> {
+        return await this.command("name");
+    }
+
     async loadsgf(filename: string, moveNumber: number = Infinity): Promise<any> {
         let command = `loadsgf ${filename}`;
         if (isFinite(moveNumber)) {
@@ -121,7 +128,6 @@ class GtpController {
     }
 
     process(line: string) {
-        console.log(line);
         if (line.startsWith("=")) {
             if (this.resolve) {
                 this.resolve(line);

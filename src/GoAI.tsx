@@ -116,9 +116,13 @@ class GoAI extends React.Component<Props, State> {
         try {
             const socket = url === "katago" ? window.Module["input"] : new WebSocket(url);
             this.gtp = new GtpController(socket, async () => {
-                const filename = "tmp.sgf";
-                FS.writeFile(filename, this.props.sgf);
-                await this.gtp.loadsgf(filename, 0);
+                if (url === "katago") {
+                    const filename = "tmp.sgf";
+                    FS.writeFile(filename, this.props.sgf);
+                    await this.gtp.loadsgf(filename, 0);
+                } else {
+                    await this.gtp.loadsgf(this.props.sgf.replace(/\r?\n/g,　""), 0);
+                }
                 updateMessage("");
                 this.setState({ disabled: false });
                 this.kataAnalyze();
