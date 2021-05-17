@@ -124,7 +124,7 @@ class GtpController {
 
     kataAnalyze(interval: number, handler: (infos: KataInfos) => void) {
         this.kataAnalyzeHandler = handler;
-        this._command(`kata-analyze ${interval} ownership true`);
+        this._command(`kata-analyze ${interval} ownership false`);
     }
 
     process(line: string) {
