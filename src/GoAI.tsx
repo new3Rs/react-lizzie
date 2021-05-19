@@ -121,7 +121,7 @@ class GoAI extends React.Component<Props, State> {
                     FS.writeFile(filename, this.props.sgf);
                     await this.gtp.loadsgf(filename, 0);
                 } else {
-                    await this.gtp.loadsgf(this.props.sgf.replace(/\r?\n/g,　""), 0);
+                    await this.gtp.loadsgfAsHereDocument(this.props.sgf, 0);
                 }
                 updateMessage("");
                 this.setState({ disabled: false });
@@ -310,7 +310,6 @@ class GoAI extends React.Component<Props, State> {
             if (move == null) {
                 continue;
             } else {
-                console.log(move);
                 const xy = this.state.model.moveToXy(move);
                 if (xy === -1) {
                     await this.state.model.play(PASS);

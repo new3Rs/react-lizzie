@@ -50,16 +50,20 @@ const App = () => {
 
     return modalIsOpen ? (
         <Modal isOpen={modalIsOpen} style={customStyles}>
-            <h2>ウェブ版囲碁の師匠</h2>
+            <h2 style={{ textAlign: "center" }}>ウェブ版囲碁の師匠 v1.1</h2>
             <form action="">
-                <input type="radio" name="size" id="size1" value="9" checked onChange={changeSize} />
-                <label htmlFor="size1">9</label>
-                <input type="radio" name="size" id="size2" value="13" onChange={changeSize} />
-                <label htmlFor="size1">13</label>
-                <input type="radio" name="size" id="size3" value="19" onChange={changeSize} />
-                <label htmlFor="size1">19</label>
-                <p><input type="file" name="sgf" onChange={handleChange} /></p>
-                <p><button type="button" onClick={closeModal}>スタート！</button></p>
+                <div style={{ textAlign: "center" }}>
+                    <input type="radio" name="size" id="size1" value="9" checked onChange={changeSize} />
+                    <label htmlFor="size1">9</label>
+                    <input type="radio" name="size" id="size2" value="13" onChange={changeSize} />
+                    <label htmlFor="size1">13</label>
+                    <input type="radio" name="size" id="size3" value="19" onChange={changeSize} />
+                    <label htmlFor="size1">19</label>
+                    <p><input type="file" name="sgf" onChange={handleChange} /></p>
+                    <p><button type="button" onClick={closeModal}>スタート！</button></p>
+                </div>
+                <p>[お知らせ]</p>
+                <p>Google Colabに関してSGFサポートを強化しました。ノートブックをコピーしてご利用の方は最新版をコピーし直してください</p>
             </form>
         </Modal>
     ) : <GoAI gtp={gtp} sgf={sgf} />

@@ -80,7 +80,6 @@ class GtpController {
 
     _command(str: string) {
         this.lastCommand = str;
-        console.log(str);
         this.socket.send(str + "\n");
     }
 
@@ -103,6 +102,21 @@ class GtpController {
             command += ` ${moveNumber}`;
         }
         return await this.command(command);
+    }
+
+    async loadsgfAsHereDocument(sgf: string, moveNumber: number = Infinity): Promise<any> {
+        return new Promise((res, rej) => {
+            this.resolve = res;
+            this.reject = rej;
+            this.socket.send("loadsgf <<tmp.sgf\n");
+            this.socket.send(sgf);
+            this.socket.send("\n");
+            if (isFinite(moveNumber)) {
+                this.socket.send(`tmp.sgf ${moveNumber}\n`);
+            } else {
+                this.socket.send("tmp.sgf\n");
+            }
+        });
     }
 
     async play(turn: string, coord: string): Promise<any> {
