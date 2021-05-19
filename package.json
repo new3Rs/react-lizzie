@@ -1,6 +1,6 @@
 {
   "name": "囲碁の師匠",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "homepage": "https://new3rs.herokuapp.com/a_master_of_go",
   "dependencies": {

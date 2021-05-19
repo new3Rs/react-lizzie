@@ -20,9 +20,9 @@ const App = () => {
     function closeModal(){
         setIsOpen(false);
     }
-    const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[9])");
+    const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[9]RU[japanese]KM[6.5])");
     function changeSize(event: React.ChangeEvent<HTMLInputElement>) {
-        setSgf(`(;FF[4]GM[1]SZ[${event.currentTarget.value}])`);
+        setSgf(`(;FF[4]GM[1]SZ[${event.currentTarget.value}]RU[japanese]KM[6.5])`);
     }
 
     if (window.location.search.startsWith("?")) {
