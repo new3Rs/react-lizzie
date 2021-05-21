@@ -16,12 +16,13 @@ const App = () => {
             transform: 'translate(-50%, -50%)'
         }
     };
-    const [modalIsOpen,setIsOpen] = React.useState(true);
-    function closeModal(){
+    const [modalIsOpen, setIsOpen] = React.useState(true);
+    const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[9]RU[japanese]KM[6.5])");
+
+    function closeModal() {
         setIsOpen(false);
     }
-    const [sgf, setSgf] = React.useState("(;FF[4]GM[1]SZ[9]RU[japanese]KM[6.5])");
-    function changeSize(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleChangeSize(event: React.ChangeEvent<HTMLInputElement>) {
         setSgf(`(;FF[4]GM[1]SZ[${event.currentTarget.value}]RU[japanese]KM[6.5])`);
     }
 
@@ -35,7 +36,7 @@ const App = () => {
         }
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeSgf = (event: React.ChangeEvent<HTMLInputElement>) => {
         const target = event.currentTarget;
         if (target.files == null || target.files.length === 0) {
                 return;
@@ -53,13 +54,13 @@ const App = () => {
             <h2 style={{ textAlign: "center" }}>ウェブ版囲碁の師匠 v1.1</h2>
             <form action="">
                 <div style={{ textAlign: "center" }}>
-                    <input type="radio" name="size" id="size1" value="9" checked onChange={changeSize} />
+                    <input type="radio" name="size" id="size1" value="9" checked onChange={handleChangeSize} />
                     <label htmlFor="size1">9</label>
-                    <input type="radio" name="size" id="size2" value="13" onChange={changeSize} />
+                    <input type="radio" name="size" id="size2" value="13" onChange={handleChangeSize} />
                     <label htmlFor="size1">13</label>
-                    <input type="radio" name="size" id="size3" value="19" onChange={changeSize} />
+                    <input type="radio" name="size" id="size3" value="19" onChange={handleChangeSize} />
                     <label htmlFor="size1">19</label>
-                    <p><input type="file" name="sgf" onChange={handleChange} /></p>
+                    <p><input type="file" name="sgf" onChange={handleChangeSgf} /></p>
                     <p><button type="button" onClick={closeModal}>スタート！</button></p>
                 </div>
                 <p>[お知らせ]</p>
