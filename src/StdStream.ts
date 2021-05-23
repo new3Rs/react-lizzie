@@ -46,7 +46,8 @@ class StdStream implements Socket {
         switch (code) {
             case 10: // "\n"
             this.stdout += String.fromCharCode(code);
-            // no break;
+            this.flushStdout();
+            break;
             case 0: // NULL
             this.flushStdout();
             break;
