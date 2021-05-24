@@ -1,10 +1,28 @@
 import React from "react";
+import { useIntl, IntlProvider, FormattedMessage } from "react-intl";
 import Modal from 'react-modal';
 import GoAI from "./GoAI";
+
+const messages: { [locale: string]: any } = {
+    "en": require("./locales/en.json"),
+    "ja": require("./locales/ja.json"),
+    "zh": require("./locales/zh.json"),
+}
 
 Modal.setAppElement("#app-container");
 
 const App = () => {
+    let locale = window.navigator.language.substring(0, 2);
+    if (!["en", "ja", "zh"].includes(locale)) {
+        locale = "en";
+    }
+    return (<IntlProvider locale={locale} messages={messages[locale]}>
+        <_App />
+    </IntlProvider>)
+};
+
+const _App = () => {
+    const intl = useIntl(); // useIntlはIntlProviderの中でしか使えないので、App -> _Appと入れ子にしている
     let gtp = "katago";
     const customStyles = {
         content: {
@@ -49,9 +67,9 @@ const App = () => {
         reader.readAsText(target.files[0]);
     };
 
-    return modalIsOpen ? (
+    const goAI = modalIsOpen ? (
         <Modal isOpen={modalIsOpen} style={customStyles}>
-            <h2 style={{ textAlign: "center" }}>ウェブ版囲碁の師匠 v1.1</h2>
+            <h2 style={{ textAlign: "center" }}><FormattedMessage id="appName" /> v1.1</h2>
             <form action="">
                 <div style={{ textAlign: "center" }}>
                     <input type="radio" name="size" id="size1" value="9" checked onChange={handleChangeSize} />
@@ -61,14 +79,26 @@ const App = () => {
                     <input type="radio" name="size" id="size3" value="19" onChange={handleChangeSize} />
                     <label htmlFor="size1">19</label>
                     <p><input type="file" name="sgf" onChange={handleChangeSgf} /></p>
-                    <p><button type="button" onClick={closeModal}>スタート！</button></p>
+                    <p><button type="button" onClick={closeModal}><FormattedMessage id="start" /></button></p>
                 </div>
-                <p>[お知らせ]</p>
-                <p>Google Colabに関してSGFサポートを強化しました。ノートブックをコピーしてご利用の方は最新版をコピーし直してください</p>
+                <p><FormattedMessage id="notice" /></p>
+                <p><FormattedMessage id="notice.content" /></p>
             </form>
         </Modal>
-    ) : <GoAI gtp={gtp} sgf={sgf} />
+    ) : <GoAI gtp={gtp} sgf={sgf} intl={intl} />;
 
+    return (
+        <div>
+            <h1 style={{ textAlign: "center" }}><FormattedMessage id="appName" /></h1>
+            <p><FormattedMessage id="manual" /></p>
+            {goAI}
+            <p id="message"></p>
+            <p>
+            <FormattedMessage id="catchphrase" /> <a href={ intl.formatMessage({ id: "appIntroUrl" }) }><FormattedMessage id="iosAppName" /></a>
+            <a href={ intl.formatMessage({ id: "appstoreUrl", defaultMessage: "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1442035374&mt=8" }) }><img src="./images/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" alt="Download on the App Store" /></a>
+            </p>
+        </div>
+    )
 };
 
 export default App;

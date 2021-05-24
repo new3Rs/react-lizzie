@@ -1,0 +1,15 @@
+{
+    "appName": "ウェブ版囲碁の師匠",
+    "manual": "スマホ/タブレットは候補手を長押しすると変化図を見られます",
+    "start": "スタート！",
+    "notice": "[お知らせ]",
+    "notice.content": "Google Colabに関してSGFサポートを強化しました。ノートブックをコピーしてご利用の方は最新版をコピーし直してください",
+    "catchphrase": "Lizzieのような囲碁AI iOSアプリ",
+    "iosAppName": "「囲碁の師匠」",
+    "appIntroUrl": "https://new3rs.github.io/a_master_of_go/index.ja.html",
+    "appstoreBadge": "./images/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg",
+    "appstoreUrl": "https://apps.apple.com/jp/app/id1442035374",
+    "loading": "ローディング中...少々お待ちください",
+    "sharedArrayBufferNotAvailable": "KataGoを動かすのに必要なSharedArrayBufferが利用できません。localhostウェブソケットサーバーに接続を試行中...",
+    "connectionError": "{url}への接続に失敗しました"
+}

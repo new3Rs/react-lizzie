@@ -4,9 +4,11 @@
   "private": true,
   "homepage": "https://new3rs.herokuapp.com/a_master_of_go",
   "dependencies": {
+    "@types/react-intl": "^3.0.0",
     "jssgf": "^0.3.8",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-intl": "^5.18.0",
     "react-modal": "^3.13.1",
     "react-scripts": "^4.0.3",
     "sprintf-js": "^1.1.2",

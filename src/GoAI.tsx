@@ -12,6 +12,7 @@ import NavigationBar from "./NavigationBar";
 import GoPosition, { PASS, BLACK, xy2coord, GoMove } from "./GoPosition";
 import GtpController, { KataInfo } from "./GtpController";
 import SGFCursor from "./SGFCursor";
+import { IntlShape } from "react-intl";
 
 function appendScript(URL: string, onload: (() => void) | null = null) {
 	var el = document.createElement('script');
@@ -23,6 +24,7 @@ function appendScript(URL: string, onload: (() => void) | null = null) {
 interface Props {
     gtp: string;
     sgf: string;
+    intl: IntlShape;
 }
 
 interface State {
@@ -58,10 +60,10 @@ class GoAI extends React.Component<Props, State> {
             candidates: [],
             ownership: []
         };
-        updateMessage("ローディング中...少々お待ちください");
+        updateMessage(this.props.intl.formatMessage({ id: "loading" }));
         if (this.props.gtp === "katago") {
             if (typeof SharedArrayBuffer === "undefined") {
-                updateMessage("SharedArrayBuffer, which is necessary for KataGo, is not available. Trying to connect localhost websocket server...", "yellow");
+                updateMessage(this.props.intl.formatMessage({ id: "sharedArrayBufferNotAvailable" }), "yellow");
                 this.start("ws://localhost:5001");
             } else {
                 window.katagoStatusHandler = (status: number) => {
@@ -127,7 +129,7 @@ class GoAI extends React.Component<Props, State> {
                 this.setState({ disabled: false });
                 this.kataAnalyze();
             }, (err) => {
-                updateMessage(`failed to connect ${(err?.target as WebSocket).url}`, "red");
+                updateMessage(this.props.intl.formatMessage({ id: "connectionError" }, { url: (err?.target as WebSocket).url }), "red");
             });
         } catch(e) {
             updateMessage(e.toString(), "red");

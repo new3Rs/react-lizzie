@@ -1,0 +1,15 @@
+{
+    "appName": "Web version of \"A Master of Go\"",
+    "manual": "Long-press a candidate to see its variation on smartphone/tablet",
+    "start": "Start!",
+    "notice": "[Notice]",
+    "notice.content": "The app supports SGF more for Google Colab. Plese re-copy the latest Notebook",
+    "catchphrase": "Lizzie-like Go AI app for iOS",
+    "iosAppName": "\"A Master of Go\"",
+    "appIntroUrl": "https://new3rs.github.io/a_master_of_go/index.html",
+    "appstoreBadge": "./images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg",
+    "appstoreUrl": "https://apps.apple.com/app/id1442035374",
+    "loading": "Now loading...Wait a minute",
+    "sharedArrayBufferNotAvailable": "SharedArrayBuffer, which is necessary for KataGo, is not available. Trying to connect localhost websocket server...",
+    "connectionError": "failed to connect {url}"
+}
