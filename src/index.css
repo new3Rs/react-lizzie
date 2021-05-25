@@ -12,10 +12,5 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-
-#stdio-container {
-  width: 500px;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

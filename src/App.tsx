@@ -2,6 +2,7 @@ import React from "react";
 import { useIntl, IntlProvider, FormattedMessage } from "react-intl";
 import Modal from 'react-modal';
 import GoAI from "./GoAI";
+import "./GoBoard.css";
 
 const messages: { [locale: string]: any } = {
     "en": require("./locales/en.json"),
