@@ -2,7 +2,6 @@ import React from "react";
 import "./NavigationBar.css";
 
 type Props = {
-    width: string;
     disabled: boolean;
     moveNumber: number;
     rewind: () => void;
@@ -14,7 +13,7 @@ type Props = {
 
 const NavigationBar: React.FC<Props> = (props) => {
     return (
-        <div style={{width: props.width }} className="navigation-bar">
+        <div className="navigation-bar">
             <button type="button" onClick={props.rewind} disabled={props.disabled}>◀︎◀︎</button>
             <button type="button" onClick={props.back} disabled={props.disabled}>◀︎</button>
             <button type="button" onClick={props.pause} disabled={props.disabled}>❚❚</button>

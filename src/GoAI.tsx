@@ -137,18 +137,14 @@ class GoAI extends React.Component<Props, State> {
     }
 
     render() {
-        const size = `${Math.min(window.innerWidth, window.innerHeight)}px`;
         return (
             <div>
                 <SituationBar
-                    width={size}
                     blackPercent={this.state.percent}
                     blackInfo={this.state.black}
                     whiteInfo={this.state.white}
                 />
                 <GoBoard
-                    width={size}
-                    height={size}
                     w={this.size}
                     h={this.size}
                     candidates={this.state.candidates}
@@ -165,7 +161,6 @@ class GoAI extends React.Component<Props, State> {
                     }}
                 />
                 <NavigationBar
-                    width={size}
                     disabled={this.state.disabled}
                     moveNumber={this.state.model.moveNumber}
                     rewind={() => { this.rewind(); }}

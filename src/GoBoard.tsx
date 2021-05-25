@@ -25,16 +25,7 @@ class GoIntersectionState {
     borderColor?: string;
     backgroundColor?: string;
 
-    constructor() {
-        this.stone = undefined;
-        this.number = undefined;
-        this.winrate = undefined;
-        this.playouts = undefined;
-        this.fillColor = undefined;
-        this.borderWidth = undefined;
-        this.borderColor = undefined;
-        this.backgroundColor = undefined;
-    }
+    constructor() {}
 }
 
 /* accepts parameters
@@ -270,8 +261,6 @@ function range(start: number, end: number): number[] {
 }
 
 interface GoBoardProps {
-    width: string;
-    height: string;
     w: number;
     h: number;
     model: GoPosition;
@@ -335,12 +324,8 @@ class GoBoard extends React.Component<GoBoardProps, GoBoardState>  {
                 addCandidatesInfo(intersections, this.props.model, this.props.candidates);
             }
         }
-        const goBoardStyle = {
-            width: this.props.width,
-            height: this.props.height,
-        };
         return (
-            <div className="go-board" style={goBoardStyle}>
+            <div className="go-board">
                 <div className="go-board-content">
                     <canvas ref={this.canvasRef} width="1000" height="1000" className="go-board-grid" onLoad={this.drawGrid}></canvas>
                     {range(this.props.h, 1).map(y => (

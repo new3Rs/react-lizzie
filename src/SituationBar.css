@@ -1,0 +1,18 @@
+.situation-bar {
+    height: 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    margin-bottom: 5px;
+}
+
+.situation-bar > div {
+    float: left;
+    text-align: center;
+    color: white;
+    height: 100%;
+}
+
+.situation-bar > div:first-child {
+    background-color: black;
+}

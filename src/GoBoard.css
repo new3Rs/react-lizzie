@@ -4,11 +4,20 @@
 
  .go-board {
     position: relative;
+    width: 100%;
     background-image: url(./images/wood1.jpg);
     background-repeat: repeat;
 }
 
+.go-board:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
 .go-board-content {
+    position: absolute;
+    top: 0px;
     display: flex;
     flex-direction: column;
     width: 97%;
