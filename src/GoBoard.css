@@ -9,6 +9,12 @@
     background-repeat: repeat;
 }
 
+@media only screen and (orientation: landscape) {
+    .go-board {
+        width: calc(100% - 15px); /* 15px is height of situation-bar */
+    }
+}
+
 .go-board:before {
     content: "";
     display: block;

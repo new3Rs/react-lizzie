@@ -1,9 +1,16 @@
 .situation-bar {
+    width: 100%;
     height: 15px;
     border-style: solid;
     border-width: 1px;
     border-color: black;
     margin-bottom: 5px;
+}
+
+@media only screen and (orientation: landscape) {
+    .situation-bar {
+        width: calc(100% - 15px); /* 15px is height of situation-bar */
+    }
 }
 
 .situation-bar > div {

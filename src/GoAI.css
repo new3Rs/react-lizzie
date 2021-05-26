@@ -1,0 +1,11 @@
+.goai-container {
+    width: 100vmin;
+}
+
+@media only screen and (orientation: landscape) {
+    .navigation-bar {
+        position: absolute;
+        bottom: 0px;
+        left: 100%;
+    }
+}

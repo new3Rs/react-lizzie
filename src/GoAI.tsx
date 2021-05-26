@@ -13,6 +13,7 @@ import GoPosition, { PASS, BLACK, xy2coord, GoMove } from "./GoPosition";
 import GtpController, { KataInfo } from "./GtpController";
 import SGFCursor from "./SGFCursor";
 import { IntlShape } from "react-intl";
+import "./GoAI.css";
 
 function appendScript(URL: string, onload: (() => void) | null = null) {
 	var el = document.createElement('script');
@@ -138,7 +139,7 @@ class GoAI extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
+            <div className="goai-container">
                 <SituationBar
                     blackPercent={this.state.percent}
                     blackInfo={this.state.black}

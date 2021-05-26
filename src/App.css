@@ -1,0 +1,9 @@
+@media only screen and (orientation: landscape) {
+    .explanation, .messages {
+        float: right;
+    }
+    .main {
+        position: relative;
+        float: left;
+    }    
+}

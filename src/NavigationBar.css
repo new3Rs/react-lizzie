@@ -5,15 +5,24 @@
     vertical-align: middle;
 }
 
+@media only screen and (orientation: landscape) {
+    .navigation-bar {
+        text-align: left;
+    }
+    .navigation-bar > span {
+        text-align: center;
+    }
+}
+
 .navigation-bar > button {
-    min-width: 10vw;
+    min-width: 10vmin;
     line-height: 44px;
-    font-size: 5vw;
+    font-size: 5vmin;
 }
 
 .navigation-bar > span {
     display: inline-block;
-    min-width: 10vw;
+    min-width: 10vmin;
     line-height: 44px;
-    font-size: 5vw;
+    font-size: 5vmin;
 }

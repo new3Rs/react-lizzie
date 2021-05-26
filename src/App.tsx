@@ -2,7 +2,7 @@ import React from "react";
 import { useIntl, IntlProvider, FormattedMessage } from "react-intl";
 import Modal from 'react-modal';
 import GoAI from "./GoAI";
-import "./GoBoard.css";
+import "./App.css";
 
 const messages: { [locale: string]: any } = {
     "en": require("./locales/en.json"),
@@ -90,14 +90,20 @@ const _App = () => {
 
     return (
         <div>
-            <h1 style={{ textAlign: "center" }}><FormattedMessage id="appName" /></h1>
-            <p><FormattedMessage id="manual" /></p>
-            {goAI}
-            <p id="message"></p>
-            <p>
-            <FormattedMessage id="catchphrase" /> <a href={ intl.formatMessage({ id: "appIntroUrl" }) }><FormattedMessage id="iosAppName" /></a>
-            <a href={ intl.formatMessage({ id: "appstoreUrl", defaultMessage: "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1442035374&mt=8" }) }><img src="./images/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" alt="Download on the App Store" /></a>
-            </p>
+            <div className="explanation">
+                <h1 style={{ textAlign: "center" }}><FormattedMessage id="appName" /></h1>
+                <p><FormattedMessage id="manual" /></p>
+            </div>
+            <div className="main">
+                {goAI}
+            </div>
+            <div className="messages">
+                <p id="message"></p>
+                <p>
+                <FormattedMessage id="catchphrase" /> <a href={ intl.formatMessage({ id: "appIntroUrl" }) }><FormattedMessage id="iosAppName" /></a>
+                <a href={ intl.formatMessage({ id: "appstoreUrl", defaultMessage: "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1442035374&mt=8" }) }><img src="./images/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" alt="Download on the App Store" /></a>
+                </p>
+            </div>
         </div>
     )
 };
