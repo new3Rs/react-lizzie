@@ -4,6 +4,8 @@ import Modal from 'react-modal';
 import GoAI from "./GoAI";
 import "./App.css";
 
+const VERSION = "v1.1";
+
 const messages: { [locale: string]: any } = {
     "en": require("./locales/en.json"),
     "ja": require("./locales/ja.json"),
@@ -70,7 +72,7 @@ const _App = () => {
 
     const goAI = modalIsOpen ? (
         <Modal isOpen={modalIsOpen} style={customStyles}>
-            <h2 style={{ textAlign: "center" }}><FormattedMessage id="appName" /> v1.1</h2>
+            <h2 style={{ textAlign: "center" }}><FormattedMessage id="appName" /> {VERSION}</h2>
             <form action="">
                 <div style={{ textAlign: "center" }}>
                     <input type="radio" name="size" id="size1" value="9" checked onChange={handleChangeSize} />
@@ -83,7 +85,7 @@ const _App = () => {
                     <p><button type="button" onClick={closeModal}><FormattedMessage id="start" /></button></p>
                 </div>
                 <p><FormattedMessage id="notice" /></p>
-                <p><FormattedMessage id="notice.content" /></p>
+                <p><FormattedMessage id="notice.content" values={{ version: VERSION }}/></p>
             </form>
         </Modal>
     ) : <GoAI gtp={gtp} sgf={sgf} intl={intl} />;

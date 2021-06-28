@@ -3,7 +3,7 @@
     "manual": "Long-press a candidate to see its variation on smartphone/tablet",
     "start": "Start!",
     "notice": "[Notice]",
-    "notice.content": "The app supports SGF more for Google Colab. Plese re-copy the latest Notebook",
+    "notice.content": "The app supports SGF more for Google Colab. Plese re-copy the Notebook for {version}",
     "catchphrase": "Lizzie-like Go AI app for iOS",
     "iosAppName": "\"A Master of Go\"",
     "appIntroUrl": "https://new3rs.github.io/a_master_of_go/index.html",

@@ -3,7 +3,7 @@
     "manual": "长按候选人以查看其在智能手机/平板电脑上的变化",
     "start": "开始!",
     "notice": "[注意]",
-    "notice.content": "该应用程序支持Google Colab的SGF更多。请重新复制最新的Notebook",
+    "notice.content": "该应用程序支持Google Colab的SGF更多。请重新复制{version}的Notebook",
     "catchphrase": "适用于iOS的类似Lizzie的Go AI应用",
     "iosAppName": "\"与围棋老师复盘\"",
     "appIntroUrl": "https://new3rs.github.io/a_master_of_go/index.html",

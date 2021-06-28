@@ -3,7 +3,7 @@
     "manual": "スマホ/タブレットは候補手を長押しすると変化図を見られます",
     "start": "スタート！",
     "notice": "[お知らせ]",
-    "notice.content": "Google Colabに関してSGFサポートを強化しました。ノートブックをコピーしてご利用の方は最新版をコピーし直してください",
+    "notice.content": "Google Colabに関してSGFサポートを強化しました。ノートブックをコピーしてご利用の方は{version}用ノートブックをコピーし直してください",
     "catchphrase": "Lizzieのような囲碁AI iOSアプリ",
     "iosAppName": "「囲碁の師匠」",
     "appIntroUrl": "https://new3rs.github.io/a_master_of_go/index.ja.html",
