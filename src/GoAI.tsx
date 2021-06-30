@@ -90,7 +90,7 @@ class GoAI extends React.Component<Props, State> {
                 }
                 window.Module["preRun"].push(() => {
                     const params = new URL(window.location.toString()).searchParams;
-                    const cfgFile = params.get("config") || `gtp_${this.size}x${this.size}.cfg`;
+                    const cfgFile = params.get("config") || (navigator.userAgent.includes("Firefox") ? `gtp_${this.size}x${this.size}_wasm.cfg` : `gtp_${this.size}x${this.size}.cfg`); // FirefoxではTensorFlow.jsのwebglバックエンドは落ちる。wasmバックエンドなら動く
                     FS.createPreloadedFile(
                         FS.cwd(),
                         cfgFile,
